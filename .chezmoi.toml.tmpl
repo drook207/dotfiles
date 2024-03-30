@@ -1,0 +1,9 @@
+[edit]
+    command = "nano"
+
+[diff]
+    command = "{{ if env "DISPLAY" }}meld{{ else }}diff{{ end }}"
+
+[merge]
+    command = "{{ if env "DISPLAY" }}meld{{ else }}vimdiff{{ end }}"
+    args = "{{ if env "DISPLAY" }}--auto-merge{{ end }}"
