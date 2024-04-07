@@ -35,3 +35,6 @@ alias dcu="docker compose up"
 alias dcud="docker compose up -d"
 alias dcudl="docker compose up -d && docker compose logs -f"
 alias dcd="docker compose down"
+
+# Apt
+alias agu="sudo apt update && sudo apt full-upgrade"
