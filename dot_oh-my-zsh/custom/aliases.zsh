@@ -12,9 +12,12 @@ alias glogga='glogg --all'
 alias gmc='git merge --continue'
 alias gmm='git fetch origin main:main && git merge main'
 alias gpf='git push --force-with-lease --force-if-includes'
+alias gsd="git stash drop"
 alias gsl="git stash list"
 alias gspop="git stash pop"
 alias gspush="git stash push"
+alias gss="git stash show"
+alias gssp="git stash show -p"
 alias gsr="git switch --recurse-submodules"
 
 # network
