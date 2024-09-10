@@ -5,38 +5,51 @@
 [core]
 	autocrlf = input
 	fileMode = true
-	pager = less -FRSX
+	pager =  less --tabs=4 -FRSX
 	compression = 0
 	trustctime = false
 	longpaths = true
+
 [pull]
 	rebase = true
+
 [http]
 	postBuffer = 300000000
 	sslVerify = true
+
 [pack]
 	windowMemory = 800m
 	SizeLimit = 800m
 	threads = 1
 	window = 0
+
 [status]
 	showuntrackedfiles = all
+
 [push]
 	default = tracking
+
 [rebase]
 	stat = true
+
 [color]
 	ui = auto
+
 [diff]
 	tool = meld
+
 [difftool "meld"]
 	 cmd = meld "$(wslpath -aw $LOCAL)" "$(wslpath -aw $REMOTE)"
+
 [difftool]
 	prompt = true
+
 [mergetool "meld"]
- 	 cmd = meld --auto-merge \"$(wslpath -aw $LOCAL)\" \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\" --output \"    $(wslpath -aw $MERGED)\" --label=Local --label=Base --label=Remote --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $    LOCAL)\" --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\"
+	cmd = meld --auto-merge \"$(wslpath -aw $LOCAL)\" \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\" --output \"    $(wslpath -aw $MERGED)\" --label=Local --label=Base --label=Remote --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $    LOCAL)\" --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\"
+
 [init]
 	defaultBranch = main
+
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
@@ -47,7 +60,7 @@
 	enabled = true
 
 [column]
-        ui = auto
+	ui = auto
 
 [credential]
 	helper = cache --timeout 7200
@@ -55,3 +68,6 @@
 
 [submodule]
 	recurse = true
+
+[include]
+	path = "~/.gitconfig.d/diff-so-fancy.inc"

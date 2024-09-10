@@ -51,6 +51,7 @@ plugins=(
   git
   docker-compose
   docker
+  diff-so-fancy
 )
 
 source $ZSH/oh-my-zsh.sh
