@@ -1,17 +1,123 @@
 #!/usr/bin/sh
+set -e
+
+OPTSTRING="b:r:"
+
+while getopts ${OPTSTRING} opt; do
+        case ${opt} in
+                b)
+                        echo "Chezmoi will try to use the given branch ${OPTARG} upon init."
+                        CHEZMOI_GITBRANCH="${OPTARG}"
+                        ;;
+                r)
+                        echo "Chezmoi will try to use the given repo specifier ${OPTARG} upon init."
+                        CHEZMOI_REPOSITORY_SPECIFIER="${OPTARG}"
+                        ;;
+    :)
+      echo "Option -${OPTARG} requires an argument."
+      exit 1
+      ;;
+    ?)
+      echo "Invalid option: -${OPTARG}."
+      exit 1
+      ;;
+  esac
+done
+
+######################################################################################################
+# Thank you, https://ohmyz.sh/ for this part of the script
+######################################################################################################
+
+command_exists() {
+        command -v "$@" >/dev/null 2>&1
+}
+
+user_can_sudo() {
+        # Check if sudo is installed
+        command_exists sudo || return 1
+        # Termux can't run sudo, so we can detect it and exit the function early.
+        case "$PREFIX" in
+        *com.termux*) return 1 ;;
+        esac
+        # The following command has 3 parts:
+        #
+        # 1. Run `sudo` with `-v`. Does the following:
+        #    • with privilege: asks for a password immediately.
+        #    • without privilege: exits with error code 1 and prints the message:
+        #      Sorry, user <username> may not run sudo on <hostname>
+        #
+        # 2. Pass `-n` to `sudo` to tell it to not ask for a password. If the
+        #    password is not required, the command will finish with exit code 0.
+        #    If one is required, sudo will exit with error code 1 and print the
+        #    message:
+        #    sudo: a password is required
+        #
+        # 3. Check for the words "may not run sudo" in the output to really tell
+        #    whether the user has privileges or not. For that we have to make sure
+        #    to run `sudo` in the default locale (with `LANG=`) so that the message
+        #    stays consistent regardless of the user's locale.
+        #
+        ! LANG='' sudo -n -v 2>&1 | grep -q "may not run sudo"
+}
+
+# Make sure important variables exist if not already defined
+#
+# $USER is defined by login(1) which is not always executed (e.g. containers)
+# POSIX: https://pubs.opengroup.org/onlinepubs/009695299/utilities/id.html
+USER=${USER:-$(id -u -n)}
+# $HOME is defined at the time of login, but it could be unset. If it is unset,
+# a tilde by itself (~) will not be expanded to the current user's home directory.
+# POSIX: https://pubs.opengroup.org/onlinepubs/009696899/basedefs/xbd_chap08.html#tag_08_03
+HOME="${HOME:-$(getent passwd "$USER" 2>/dev/null | cut -d: -f6)}"
+# macOS does not have getent, but this works even if $HOME is unset
+HOME="${HOME:-$(eval echo ~"$USER")}"
+
+# Check if user has sudo privileges to run `apt-get` with or without `sudo`
+#
+# This allows the call to succeed without password on systems where the
+# user does not have a password but does have sudo privileges, like in
+# Google Cloud Shell.
+#
+# On systems that don't have a user with passwordless sudo, the user will
+# be prompted for the password either way, so this shouldn't cause any issues.
+#
+if user_can_sudo; then
+        SUDO="sudo -k" # -k forces the password prompt
+fi
+
+######################################################################################################
+# End of oh-my-zsh code
+######################################################################################################
 
 echo "Installing requirements..."
-sudo apt-get update && sudo -y apt-get install git zsh
 
-echo "Installing oh-my-zsh"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+$SUDO apt-get update && $SUDO apt-get -y install curl git zsh nano locales
+
+echo "Ensuring at least one locale en_US.UTF-8 is available by adding it to /etc/locale.gen"
+$SUDO sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
+
+echo "Generating locales"
+$SUDO locale-gen
+
+echo "Installing oh-my-zsh. Since we want to do additional install steps afterwards, we won't start a zsh shell automatically."
+RUNZSH=no CHSH=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 echo "Getting chezmoi..."
-if [ -z $1 ]; then
-	echo "Using github username *darkmattercoder* for cloning"
-	REPOSITORY_SPECIFIER=darkmattercoder
+
+if [ -z "$CHEZMOI_REPOSITORY_SPECIFIER" ]; then
+        echo "Using github repository https://github.com/darkmattercoder/dotfiles.git"
+        CHEZMOI_REPOSITORY_SPECIFIER=darkmattercoder
 else
-	echo "Using git remote $1"
-	REPOSITORY_SPECIFIER=$1
+        echo "Using git specifier $CHEZMOI_REPOSITORY_SPECIFIER"
 fi
-sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/bin init --apply $REPOSITORY_SPECIFIER
+
+if [ -n "$CHEZMOI_GITBRANCH" ]; then
+        echo "Using specific branch $CHEZMOI_GITBRANCH"
+        CHEZMOI_BRANCH="--branch $CHEZMOI_GITBRANCH"
+fi
+
+# Cannot get the branch argument parsed when quoted. So for f***s sake, just use it unqoted, because that works
+# shellcheck disable=SC2086
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME"/bin init --apply $CHEZMOI_BRANCH "$CHEZMOI_REPOSITORY_SPECIFIER"
+
+exec zsh -l
