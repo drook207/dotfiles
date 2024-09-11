@@ -30,6 +30,9 @@ if [[ $? -ne 0 ]]; then
 	export PATH=$HOME/.local/bin:$PATH
 fi
 
+# Fix dircolors for selenized theme (see: https://github.com/jan-warchol/selenized/tree/master/other-apps/dircolors)
+export LS_COLORS="$LS_COLORS:ow=1;7;34:st=30;44:su=30;41"
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
