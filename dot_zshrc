@@ -55,6 +55,7 @@ plugins=(
   docker-compose
   docker
   diff-so-fancy
+  selenized-man
 )
 
 source $ZSH/oh-my-zsh.sh
