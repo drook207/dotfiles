@@ -72,32 +72,43 @@ HOME="${HOME:-$(getent passwd "$USER" 2>/dev/null | cut -d: -f6)}"
 # macOS does not have getent, but this works even if $HOME is unset
 HOME="${HOME:-$(eval echo ~"$USER")}"
 
-# Check if user has sudo privileges to run `apt-get` with or without `sudo`
+# Check if user has sudo privileges
 #
-# This allows the call to succeed without password on systems where the
-# user does not have a password but does have sudo privileges, like in
-# Google Cloud Shell.
-#
-# On systems that don't have a user with passwordless sudo, the user will
-# be prompted for the password either way, so this shouldn't cause any issues.
-#
+# Defines two sudo placeholders. One for regular sudo, one that will force password input by using the `-k` option.
 if user_can_sudo; then
-        SUDO="sudo -k" # -k forces the password prompt
+        SUDO_FORCE_PASSWORD="sudo -k && sudo" # -K forces the password prompt
+        SUDO="sudo" # remembers password
 fi
 
 ######################################################################################################
 # End of oh-my-zsh code
 ######################################################################################################
-
 echo "Installing requirements..."
-
-$SUDO apt-get update && $SUDO apt-get -y install curl git zsh nano locales
+# first sudo in the script always forces the password
+$SUDO_FORCE_PASSWORD apt-get update && $SUDO apt-get -y install curl git zsh nano locales
 
 echo "Ensuring at least one locale en_US.UTF-8 is available by adding it to /etc/locale.gen"
 $SUDO sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
 
 echo "Generating locales"
 $SUDO locale-gen
+
+if command_exists gnome-terminal; then
+        echo "Installing selenized color scheme for gnome-terminal. Old Profile will be saved as Default_backup"
+        tempdir=$(mktemp -d)
+        git clone https://github.com/darkmattercoder/selenized "$tempdir"
+        "$tempdir"/terminals/gnome-terminal/install.sh -s selenized-black -p Default
+        rm -rf "$tempdir"
+fi
+
+echo "Installing github cli"
+(type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+	&& sudo mkdir -p -m 755 /etc/apt/keyrings \
+	&& wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+	&& sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+	&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+	&& sudo apt update \
+	&& sudo apt install gh -y
 
 echo "Installing oh-my-zsh. Since we want to do additional install steps afterwards, we won't start a zsh shell automatically."
 RUNZSH=no CHSH=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
