@@ -30,6 +30,8 @@ alias cmc="chezmoi cd"
 alias cmm="chezmoi merge"
 alias cms="chezmoi status"
 alias cme="chezmoi edit"
+alias cmu="chezmoi update"
+alias cmua="chezmoi update --apply"
 alias cmapl="chezmoi apply"
 alias cmadd="chezmoi add"
 
