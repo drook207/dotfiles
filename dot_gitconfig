@@ -1,6 +1,6 @@
 [user]
-	email = devel@jochenbauer.net
-	name = Jochen Bauer
+	email = drook207@gmail.com
+	name = Pascal Berndt
 
 [core]
 	autocrlf = input
@@ -9,6 +9,7 @@
 	compression = 0
 	trustctime = false
 	longpaths = true
+	editor = nano
 
 [pull]
 	rebase = true
