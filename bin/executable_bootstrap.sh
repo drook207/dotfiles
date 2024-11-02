@@ -93,13 +93,13 @@ $SUDO sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen
 echo "Generating locales"
 $SUDO locale-gen
 
-if command_exists gnome-terminal; then
-        echo "Installing selenized color scheme for gnome-terminal. Old Profile will be saved as Default_backup"
-        tempdir=$(mktemp -d)
-        git clone https://github.com/darkmattercoder/selenized "$tempdir"
-        "$tempdir"/terminals/gnome-terminal/install.sh -s selenized-black -p Default
-        rm -rf "$tempdir"
-fi
+# if command_exists gnome-terminal; then
+#         echo "Installing selenized color scheme for gnome-terminal. Old Profile will be saved as Default_backup"
+#         tempdir=$(mktemp -d)
+#         git clone https://github.com/darkmattercoder/selenized "$tempdir"
+#         "$tempdir"/terminals/gnome-terminal/install.sh -s selenized-black -p Default
+#         rm -rf "$tempdir"
+# fi
 
 echo "Installing github cli"
 (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
