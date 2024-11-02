@@ -116,8 +116,8 @@ RUNZSH=no CHSH=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh
 echo "Getting chezmoi..."
 
 if [ -z "$CHEZMOI_REPOSITORY_SPECIFIER" ]; then
-        echo "Using github repository https://github.com/darkmattercoder/dotfiles.git"
-        CHEZMOI_REPOSITORY_SPECIFIER=darkmattercoder
+        echo "Using github repository https://github.com/drook207/dotfiles.git"
+        CHEZMOI_REPOSITORY_SPECIFIER=drook207
 else
         echo "Using git specifier $CHEZMOI_REPOSITORY_SPECIFIER"
 fi
