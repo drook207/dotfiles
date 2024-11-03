@@ -56,7 +56,6 @@ plugins=(
   docker-compose
   docker
   diff-so-fancy
-  selenized-man
   fzf
   zsh-interactive-cd
 )
@@ -65,7 +64,7 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-export Qt6_DIR="/home/pascalb/Qt/6.8.0/gcc_64/lib/cmake/"
+export Qt6_DIR="/home/pascal/Qt/6.8.0/gcc_64/lib/cmake/"
 export QT_DIR="$HOME/Qt"
 export CMAKE_PREFIX_PATH="$Qt6_DIR:$QT_DIR"
 
@@ -73,8 +72,8 @@ export CMAKE_PREFIX_PATH="$Qt6_DIR:$QT_DIR"
 
 ##zshcofig
 
-alias zshconfig="kate ~/.zshrc"
+alias zshconfig="nano ~/.zshrc"
 
 ##directories
 
-alias repos="cd ~/development/repos"
+alias repos="cd ~/repos"
