@@ -1,9 +1,0 @@
-set tabsize 4
-set linenumbers
-
-
-# For all files which do not have syntax highlighting configured
-syntax "default"
-
-# trailing whitespaces highlight
-color ,green "[[:space:]]+$"

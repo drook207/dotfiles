@@ -9,7 +9,7 @@
 	compression = 0
 	trustctime = false
 	longpaths = true
-	editor = nano
+	editor = kate
 
 [pull]
 	rebase = true
@@ -37,16 +37,16 @@
 	ui = auto
 
 [diff]
-	tool = meld
+	tool = kdiff3
 
-[difftool "meld"]
-	 cmd = meld "$(wslpath -aw $LOCAL)" "$(wslpath -aw $REMOTE)"
+[difftool "kdiff3"]
+	 cmd = kdiff "$(wslpath -aw $LOCAL)" "$(wslpath -aw $REMOTE)"
 
 [difftool]
 	prompt = true
 
-[mergetool "meld"]
-	cmd = meld --auto-merge \"$(wslpath -aw $LOCAL)\" \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\" --output \"    $(wslpath -aw $MERGED)\" --label=Local --label=Base --label=Remote --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $    LOCAL)\" --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\"
+[mergetool "kdiff3"]
+	cmd = kdiff3 --auto-merge \"$(wslpath -aw $LOCAL)\" \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\" --output \"    $(wslpath -aw $MERGED)\" --label=Local --label=Base --label=Remote --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $    LOCAL)\" --diff \"$(wslpath -aw $BASE)\" \"$(wslpath -aw $REMOTE)\"
 
 [init]
 	defaultBranch = main
