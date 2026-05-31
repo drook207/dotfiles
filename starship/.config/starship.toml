@@ -1,12 +1,12 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[](red)\
+[](bg:red fg:red)\
 $os\
 $username\
-[](bg:peach fg:red)\
+[](bg:orange fg:red)\
 $directory\
-[](bg:yellow fg:peach)\
+[](bg:yellow fg:orange)\
 $git_branch\
 $git_status\
 [](fg:yellow bg:green)\
@@ -20,20 +20,21 @@ $java\
 $kotlin\
 $haskell\
 $python\
-[](fg:green bg:sapphire)\
+[](fg:green bg:aqua)\
 $conda\
-[](fg:sapphire bg:lavender)\
+[](fg:aqua bg:blue)\
 $time\
-[ ](fg:lavender)\
+[](fg:blue bg:violet)\
 $cmd_duration\
+[](fg:violet)\
 $line_break\
-$character"""
+"""
 
-palette = 'catppuccin_mocha'
+palette = 'kanagawa_dragon'
 
 [os]
 disabled = false
-style = "bg:red fg:crust"
+style = "bg:red fg:ink"
 
 [os.symbols]
 Windows = ""
@@ -59,12 +60,12 @@ RedHatEnterprise = "󱄛"
 
 [username]
 show_always = true
-style_user = "bg:red fg:crust"
-style_root = "bg:red fg:crust"
+style_user = "bg:red fg:ink"
+style_root = "bg:red fg:ink"
 format = '[ $user]($style)'
 
 [directory]
-style = "bg:peach fg:crust"
+style = "bg:orange fg:ink"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
@@ -79,78 +80,78 @@ truncation_symbol = "…/"
 [git_branch]
 symbol = ""
 style = "bg:yellow"
-format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
+format = '[[ $symbol $branch ](fg:ink bg:yellow)]($style)'
 
 [git_status]
 style = "bg:yellow"
-format = '[[($all_status$ahead_behind )](fg:crust bg:yellow)]($style)'
+format = '[[($all_status$ahead_behind )](fg:ink bg:yellow)]($style)'
 
 [nodejs]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [bun]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [c]
 symbol = " "
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [rust]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [golang]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [php]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [java]
 symbol = " "
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [kotlin]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [haskell]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version) ](fg:ink bg:green)]($style)'
 
 [python]
 symbol = ""
 style = "bg:green"
-format = '[[ $symbol( $version)(\(#$virtualenv\)) ](fg:crust bg:green)]($style)'
+format = '[[ $symbol( $version)(\(#$virtualenv\)) ](fg:ink bg:green)]($style)'
 
 [docker_context]
 symbol = ""
-style = "bg:sapphire"
-format = '[[ $symbol( $context) ](fg:crust bg:sapphire)]($style)'
+style = "bg:aqua"
+format = '[[ $symbol( $context) ](fg:ink bg:aqua)]($style)'
 
 [conda]
 symbol = "  "
-style = "fg:crust bg:sapphire"
+style = "fg:ink bg:aqua"
 format = '[$symbol$environment ]($style)'
 ignore_base = false
 
 [time]
 disabled = false
 time_format = "%R"
-style = "bg:lavender"
-format = '[[  $time ](fg:crust bg:lavender)]($style)'
+style = "bg:blue"
+format = '[[  $time ](fg:ink bg:blue)]($style)'
 
 [line_break]
 disabled = true
@@ -160,17 +161,29 @@ disabled = false
 success_symbol = '[❯](bold fg:green)'
 error_symbol = '[❯](bold fg:red)'
 vimcmd_symbol = '[❮](bold fg:green)'
-vimcmd_replace_one_symbol = '[❮](bold fg:lavender)'
-vimcmd_replace_symbol = '[❮](bold fg:lavender)'
+vimcmd_replace_one_symbol = '[❮](bold fg:blue)'
+vimcmd_replace_symbol = '[❮](bold fg:blue)'
 vimcmd_visual_symbol = '[❮](bold fg:yellow)'
 
 [cmd_duration]
 show_milliseconds = true
-format = " in $duration "
-style = "bg:lavender"
-disabled = false
+format = "$duration "
+style = "fg:ink bg:violet"
+disabled = true
 show_notifications = true
 min_time_to_notify = 45000
+
+
+[palettes.kanagawa_dragon]
+ink    = "#0d0c0c"
+red    = "#c4746e"
+orange = "#b6927b"
+yellow = "#c4b28a"
+green  = "#8a9a7b"
+aqua   = "#8ea4a2"
+blue   = "#658594"
+violet = "#8992a7"
+
 
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
