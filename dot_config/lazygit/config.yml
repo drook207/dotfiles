@@ -1,28 +1,27 @@
+# Kanagawa Paper Ink (https://github.com/thesimonho/kanagawa-paper.nvim, extras/lazygit)
 gui:
   theme:
     activeBorderColor:
       - "#c4b28a"
-      - bold
+      - "bold"
     inactiveBorderColor:
-      - "#8ea49e"
+      - "#625e5a"
     searchingActiveBorderColor:
-      - "#938aa9"
-      - bold
+      - "#938AA9"
+      - "bold"
     optionsTextColor:
-      - "#c8c093"
+      - "#8ea49e"
     selectedLineBgColor:
-      - "#333343"
-    inactiveViewSelectedLineBgColor:
-      - bold
+      - "#2A2A37"
     cherryPickedCommitFgColor:
-      - "#c8c093"
+      - "#393836"
     cherryPickedCommitBgColor:
-      - "#938aa9"
+      - "#c4746e"
     markedBaseCommitFgColor:
-      - "#938aa9"
+      - "#393836"
     markedBaseCommitBgColor:
-      - "#c4746e"
+      - "#c4b28a"
     unstagedChangesColor:
-      - "#c4746e"
+      - "#c4b28a"
     defaultFgColor:
-      - "#dcd7ba"
+      - "#DCD7BA"

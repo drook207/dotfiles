@@ -9,7 +9,7 @@ hl.config({
         resize_on_border = true,
         col = {
             active_border = {
-                colors = { KANAGAWA_BLUE, KANAGAWA_VIOLET },
+                colors = { KANAGAWA_YELLOW, KANAGAWA_VIOLET },
                 angle = 45,
             },
             inactive_border = KANAGAWA_GRAY,
@@ -19,14 +19,14 @@ hl.config({
         col = {
             border_active = KANAGAWA_AQUA,
             border_inactive = KANAGAWA_GRAY,
-            border_locked_active = KANAGAWA_YELLOW,
+            border_locked_active = KANAGAWA_RED,
             border_locked_inactive = KANAGAWA_GRAY,
         },
         groupbar = {
             col = {
-                active = KANAGAWA_BLUE,
+                active = KANAGAWA_YELLOW,
                 inactive = KANAGAWA_GRAY,
-                locked_active = KANAGAWA_YELLOW,
+                locked_active = KANAGAWA_RED,
                 locked_inactive = KANAGAWA_GRAY,
             },
         },

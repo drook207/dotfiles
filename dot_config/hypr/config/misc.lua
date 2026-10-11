@@ -9,7 +9,7 @@ hl.config({
     misc = {
         font_family = "JetBrainsMono Nerd Font",
         col = {
-            splash = KANAGAWA_BLUE,
+            splash = KANAGAWA_YELLOW,
         },
         middle_click_paste = false,
         enable_swallow = true,

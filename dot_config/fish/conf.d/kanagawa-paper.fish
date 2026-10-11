@@ -1,17 +1,15 @@
-
-# Kanagawa Fish shell theme
-# A template was taken and modified from Tokyonight:
-# https://github.com/folke/tokyonight.nvim/blob/main/extras/fish_tokyonight_night.fish
+# Kanagawa Paper Ink fish colors, mapped from the palette of
+# https://github.com/thesimonho/kanagawa-paper.nvim (no upstream fish extra)
 set -l foreground DCD7BA normal
-set -l selection 2D4F67 brcyan
+set -l selection 363646 brblack
 set -l comment 727169 brblack
-set -l red C34043 red
-set -l orange FF9E64 brred
-set -l yellow C0A36E yellow
-set -l green 76946A green
-set -l purple 957FB8 magenta
-set -l cyan 7AA89F cyan
-set -l pink D27E99 brmagenta
+set -l red c4746e red
+set -l orange b6927b brred
+set -l yellow c4b28a yellow
+set -l green 699469 green
+set -l purple 938AA9 magenta
+set -l cyan 8ea49e cyan
+set -l pink a292a3 brmagenta
 
 # Syntax Highlighting Colors
 set -g fish_color_normal $foreground
@@ -35,5 +33,5 @@ set -g fish_pager_color_prefix $cyan
 set -g fish_pager_color_completion $foreground
 set -g fish_pager_color_description $comment
 
-# fzf (used by fzf.fish)
-set -gx FZF_DEFAULT_OPTS "--color=fg:#dcd7ba,hl:#7e9cd8,fg+:#dcd7ba,bg+:#2d4f67,hl+:#7fb4ca,info:#c0a36e,prompt:#957fb8,pointer:#ff5d62,marker:#98bb6c,spinner:#7aa89f,header:#727169,border:#54546d,gutter:-1"
+# fzf (used by fzf.fish), from extras/fzf/kanagawa-paper-ink.rc
+set -gx FZF_DEFAULT_OPTS "--color=bg:-1,bg+:#2A2A37,fg:-1,fg+:#DCD7BA,hl:#938AA9,hl+:#c4746e --color=header:#b6927b,info:#658594,pointer:#7AA89F --color=marker:#7AA89F,prompt:#c4746e,spinner:#8ea49e"

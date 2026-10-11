@@ -90,9 +90,9 @@ settings_show_advanced = true
 gpu_poll_seconds = 2
 
 [theme]
-builtin = "Kanagawa"
+custom_palette = "KanagawaPaperInk"
 mode = "dark"
-source = "builtin"
+source = "custom"
 
     [theme.templates]
     builtin_ids = [ "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt", "alacritty" ]

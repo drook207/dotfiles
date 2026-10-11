@@ -1,12 +1,12 @@
 return {
   {
-    "rebelot/kanagawa.nvim",
+    "thesimonho/kanagawa-paper.nvim",
     lazy = false,
     priority = 1000,
-    opts = { theme = "wave" },
+    opts = {},
   },
   {
     "LazyVim/LazyVim",
-    opts = { colorscheme = "kanagawa-wave" },
+    opts = { colorscheme = "kanagawa-paper-ink" },
   },
 }

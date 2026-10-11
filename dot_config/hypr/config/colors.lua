@@ -1,7 +1,7 @@
--- Kanagawa Wave colors (https://github.com/rebelot/kanagawa.nvim)
+-- Kanagawa Paper Ink colors (https://github.com/thesimonho/kanagawa-paper.nvim)
 
-KANAGAWA_BLUE   = "rgba(7e9cd8ff)" -- crystalBlue
-KANAGAWA_VIOLET = "rgba(957fb8ff)" -- oniViolet
-KANAGAWA_AQUA   = "rgba(7aa89fff)" -- waveAqua2
-KANAGAWA_YELLOW = "rgba(c0a36eff)" -- boatYellow2
-KANAGAWA_GRAY   = "rgba(54546dff)" -- sumiInk6
+KANAGAWA_YELLOW = "rgba(c4b28aff)" -- primary
+KANAGAWA_VIOLET = "rgba(938aa9ff)" -- focus / tertiary
+KANAGAWA_AQUA   = "rgba(8ea49eff)" -- cyan
+KANAGAWA_RED    = "rgba(c4746eff)" -- secondary / danger
+KANAGAWA_GRAY   = "rgba(625e5aff)" -- divider

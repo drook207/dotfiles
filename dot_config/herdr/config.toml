@@ -4,8 +4,30 @@
 # tmux session -> herdr workspace, tmux window -> herdr tab, tmux pane -> herdr pane
 
 [theme]
-# Kanagawa Wave, matching ghostty, tmux, nvim and noctalia
+# Kanagawa Paper Ink (https://github.com/thesimonho/kanagawa-paper.nvim), as
+# overrides on top of herdr's builtin kanagawa theme
 name = "kanagawa"
+
+[theme.custom]
+accent = "#c4b28a"
+panel_bg = "#1f1f28"
+sidebar_bg = "#1a1a22"
+active_row_bg = "#2a2a37"
+selection_bg = "#363646"
+surface0 = "#2a2a37"
+surface1 = "#363646"
+surface_dim = "#16161d"
+overlay0 = "#625e5a"
+overlay1 = "#727169"
+text = "#dcd7ba"
+subtext0 = "#c8c093"
+mauve = "#938aa9"
+green = "#699469"
+yellow = "#c4b28a"
+red = "#c4746e"
+blue = "#658594"
+teal = "#8ea49e"
+peach = "#b6927b"
 
 [terminal]
 # Matches -c "#{pane_current_path}" on every split, window, and session

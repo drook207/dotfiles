@@ -30,7 +30,7 @@ $cmd_duration\
 $line_break\
 """
 
-palette = 'kanagawa_wave'
+palette = 'kanagawa_paper_ink'
 
 [os]
 disabled = false
@@ -173,6 +173,16 @@ disabled = true
 show_notifications = true
 min_time_to_notify = 45000
 
+
+[palettes.kanagawa_paper_ink]
+ink    = "#16161d"
+red    = "#c4746e"
+orange = "#b6927b"
+yellow = "#c4b28a"
+green  = "#699469"
+aqua   = "#8ea49e"
+blue   = "#658594"
+violet = "#938aa9"
 
 [palettes.kanagawa_wave]
 ink    = "#16161d"
