@@ -5,7 +5,7 @@
 [packages]
 pacman = [
     # base tooling
-    "chezmoi", "git", "github-cli", "curl", "jq", "unzip", "pacman-contrib", "fwupd",
+    "chezmoi", "git", "github-cli", "curl", "jq", "unzip", "pacman-contrib", "fwupd", "snapper",
     # shell
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
@@ -30,6 +30,7 @@ herdr-bin = "herdr"
 # System services enabled (and started) once their packages are installed
 [packages.services]
 system = [
-    "paccache.timer",       # weekly: keep the last 3 versions of each package
-    "fwupd-refresh.timer",  # refresh firmware metadata for `fwupdmgr update`
+    "paccache.timer",          # weekly: keep the last 3 versions of each package
+    "fwupd-refresh.timer",     # refresh firmware metadata for `fwupdmgr update`
+    "snapper-timeline.timer",  # hourly /home snapshots (snapper-home script)
 ]

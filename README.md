@@ -53,6 +53,7 @@ chezmoi re-add <file>                  # copy a file changed in ~ back into the 
 | `run_onchange_after_install-packages.sh.tmpl` | Installs missing packages with pacman/paru, enables the services |
 | `run_onchange_after_gtk-qt-settings.sh` | GTK/Qt font and cursor settings that live outside `~/.config` files |
 | `run_onchange_after_firefox-theme.sh` | Installs Pywalfox into the default Firefox profile |
+| `run_onchange_after_snapper-home.sh.tmpl` | Hourly snapper snapshots of `/home` (10 hourly, 7 daily, 4 weekly) |
 
 ## Theme
 
