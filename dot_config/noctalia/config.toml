@@ -2,7 +2,7 @@
 ui_scale = 1.20
 
 [bar.default]
-center = [ "workspaces", "spacer_1", "active_window" ]
+center = [ "clock" ]
 concave_edge_corners = true
 end = [ "media", "spacer_1", "tray", "notifications", "network", "volume", "session" ]
 margin_edge = 0
@@ -12,7 +12,7 @@ radius_bottom_right = 12
 radius_top_left = 0
 radius_top_right = 0
 scale = 1.10
-start = [ "launcher", "clock", "spacer_1", "group:g1" ]
+start = [ "launcher", "workspaces", "spacer_1", "group:g1", "spacer_1", "active_window" ]
 thickness = 35
 
     [[bar.default.capsule_group]]
@@ -140,4 +140,5 @@ capsule = true
 capsule_fill = "on_primary"
 inactive_pill_size = 1.0
 pill_scale = 0.80
-show_labels = false
+label_source = "id"
+show_labels = true
