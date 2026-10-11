@@ -1,3 +1,4 @@
+onboarding = false
 # Omarchy's herdr config (basecamp/omarchy v4.0.4, config/herdr/config.toml)
 # with the Kanagawa theme.
 # Mirrors the Omarchy tmux config in config/tmux/tmux.conf

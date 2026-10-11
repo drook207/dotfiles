@@ -47,8 +47,9 @@ launch_apps_as_systemd_services = true
 polkit_agent = true
 settings_show_advanced = true
 
+    # copy wallpaper, palette, theme mode and font to the login screen (noctalia-greeter)
     [shell.greeter_sync]
-    auto_sync = false
+    auto_sync = true
 
     [shell.panel]
     open_near_click_control_center = true
