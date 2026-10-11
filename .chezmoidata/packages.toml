@@ -21,3 +21,9 @@ aur = [
     "bibata-cursor-theme-bin",  # cursor theme set in uwsm/env
     "1password",                # SUPER+SHIFT+/
 ]
+
+# Packages that also count as installed when their command is already on the
+# PATH, e.g. from an upstream install script (/usr/local/bin, ~/.local/bin).
+[packages.commands]
+starship = "starship"
+herdr-bin = "herdr"

@@ -5,7 +5,8 @@
 #
 # Re-runs whenever the package list or the set of missing packages changes:
 {{- $all := concat .packages.pacman .packages.aur }}
-# {{ list $all (output "sh" "-c" (printf "command -v pacman >/dev/null && pacman -T %s || true" (join " " $all))) | toJson | sha256sum }}
+{{- $check := printf "command -v pacman >/dev/null && pacman -T %s; command -v %s; true" (join " " $all) (join " " (values .packages.commands | sortAlpha)) }}
+# {{ list $all .packages.commands (output "sh" "-c" $check) | toJson | sha256sum }}
 set -euo pipefail
 
 command -v pacman >/dev/null || exit 0
@@ -13,16 +14,30 @@ command -v pacman >/dev/null || exit 0
 pacman_pkgs=({{ range .packages.pacman }}{{ . | quote }} {{ end }})
 aur_pkgs=({{ range .packages.aur }}{{ . | quote }} {{ end }})
 
+# Packages whose command, if already on the PATH, counts as installed
+declare -A provided_by_command=({{ range $pkg, $cmd := .packages.commands }}[{{ $pkg | quote }}]={{ $cmd | quote }} {{ end }})
+
 # pacman -T prints the entries that aren't satisfied (honours "provides")
-mapfile -t missing_repo < <(pacman -T "${pacman_pkgs[@]}" || true)
-mapfile -t missing_aur < <(pacman -T "${aur_pkgs[@]}" || true)
+missing() {
+    local pkg
+    for pkg in $(pacman -T "$@" || true); do
+        local cmd="${provided_by_command[$pkg]:-}"
+        if [ -n "$cmd" ] && command -v "$cmd" >/dev/null; then
+            continue
+        fi
+        echo "$pkg"
+    done
+}
+mapfile -t missing_repo < <(missing "${pacman_pkgs[@]}")
+mapfile -t missing_aur < <(missing "${aur_pkgs[@]}")
 
 if [ ${#missing_repo[@]} -eq 0 ] && [ ${#missing_aur[@]} -eq 0 ]; then
     exit 0
 fi
 
 if [ ! -t 0 ] || [ ! -t 1 ]; then
-    echo "install-packages: missing: ${missing_repo[*]} ${missing_aur[*]}" >&2
+    missing_all=("${missing_repo[@]}" "${missing_aur[@]}")
+    echo "install-packages: missing: ${missing_all[*]}" >&2
     echo "install-packages: run 'chezmoi apply' in a terminal to install them" >&2
     exit 1
 fi
