@@ -4,6 +4,8 @@
 -- bindings whose only implementation is an omarchy-* script are left out.
 
 local noctCall = "noctalia msg "
+-- Own scripts from ~/.local/bin, by full path: ghostty's -e doesn't reliably find them on the PATH
+local userBin = os.getenv("HOME") .. "/.local/bin/"
 local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empty (e.g. "")
 
 -- Every binding made through bind(), for the keybindings menu (SUPER+K)
@@ -168,7 +170,7 @@ bind("XF86PowerOff",           "Power menu",  noct("panel-toggle session"), { lo
 bind("SUPER + CTRL + Q",       "Calculator",  CALCULATOR)
 bind("XF86Calculator",         "Calculator",  CALCULATOR)
 
-bind("SUPER + K",                    "Keybindings",          TERMINAL .. " --class=dev.drook.keybindings -e hypr-keybindings")
+bind("SUPER + K",                    "Keybindings",          TERMINAL .. " --class=dev.drook.keybindings -e " .. userBin .. "hypr-keybindings")
 bind("SUPER + SHIFT + SPACE",        "Toggle top bar",       noct("bar-toggle"))
 bind("SUPER + CTRL + SPACE",         "Background switcher",  noct("panel-toggle wallpaper"))
 bind("SUPER + SHIFT + CTRL + SPACE", "Theme / settings",     noct("settings-toggle"))
@@ -185,9 +187,9 @@ bind("SUPER + CTRL + N", "Toggle nightlight",      noct("nightlight-force-toggle
 
 -- Capture
 bind("PRINT",         "Screenshot",   noct("screenshot-region"))
-bind("ALT + PRINT",          "Screen recording (start/stop)", "screenrecord")
+bind("ALT + PRINT",          "Screen recording (start/stop)", userBin .. "screenrecord")
 bind("SUPER + PRINT",        "Color picker", hl.dsp.exec_cmd("pkill hyprpicker || hyprpicker -a"))
-bind("SUPER + CTRL + PRINT", "Extract text (OCR) from screenshot", "screenshot-ocr")
+bind("SUPER + CTRL + PRINT", "Extract text (OCR) from screenshot", userBin .. "screenshot-ocr")
 
 -- Control center panels
 bind("SUPER + CTRL + A",       "Audio",     noct("panel-toggle control-center audio"))
