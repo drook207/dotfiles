@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Publish container ports on 127.0.0.1 by default. Docker writes its own
+# iptables rules, so ports published with `-p` would otherwise be reachable from
+# any network despite ufw. Share a port on purpose with -p 0.0.0.0:<host>:<ctr>.
+# Needs sudo, so outside an interactive terminal it fails with a hint instead.
+#
+# Re-runs whenever Docker gets installed or the daemon config changes:
+# {{ output "sh" "-c" "command -v dockerd; cat /etc/docker/daemon.json 2>/dev/null; true" | sha256sum }}
+set -euo pipefail
+
+command -v dockerd >/dev/null || exit 0
+
+config=/etc/docker/daemon.json
+current=$(cat "$config" 2>/dev/null || echo '{}')
+[ "$(jq -r '.ip // empty' <<<"$current")" = "127.0.0.1" ] && exit 0
+
+if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo "docker-localhost: not applied; run 'chezmoi apply' in a terminal" >&2
+    exit 1
+fi
+
+sudo mkdir -p /etc/docker
+jq '.ip = "127.0.0.1"' <<<"$current" | sudo tee "$config" >/dev/null
+if systemctl is-active -q docker.service; then
+    sudo systemctl restart docker.service
+fi

@@ -16,6 +16,7 @@ abbr -a find fd
 set -gx EDITOR nvim
 starship init fish | source
 zoxide init --cmd cd fish | source
+command -q mise; and mise activate fish | source
 
 # User-installed tools (pipx, herdr, ...); no-op if already on the PATH
 fish_add_path -g ~/.local/bin

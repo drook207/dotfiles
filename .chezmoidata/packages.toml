@@ -1,5 +1,5 @@
 # Packages the dotfiles rely on and system services to enable, handled by
-# run_onchange_after_install-packages.sh.tmpl.
+# run_onchange_after_00-install-packages.sh.tmpl.
 # Repo names are CachyOS/Arch; "aur" packages are built with paru.
 
 [packages]
@@ -10,10 +10,18 @@ pacman = [
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
     "ghostty", "neovim", "lazygit", "btop",
+    # development
+    "mise", "docker", "docker-compose", "docker-buildx", "lazydocker", "tree-sitter-cli",
+    "dua-cli", "whois",
     # desktop
     "hyprland", "uwsm", "noctalia", "hyprpicker", "grim", "wl-clipboard", "swash",
     "slurp", "gpu-screen-recorder", "tesseract", "tesseract-data-eng", "tesseract-data-deu",
     "dolphin", "gnome-calculator", "firefox", "localsend",
+    # media, documents, drives
+    "mpv", "mpv-mpris", "imv", "evince", "xournalpp",
+    "gvfs-mtp", "gvfs-smb", "gnome-disk-utility",
+    # keep modules of the running kernel usable after kernel updates
+    "kernel-modules-hook",
     # look and feel
     "ttf-jetbrains-mono-nerd", "adw-gtk-theme", "breeze-icons", "qt6ct",
 ]
@@ -34,6 +42,8 @@ system = [
     "paccache.timer",          # weekly: keep the last 3 versions of each package
     "fwupd-refresh.timer",     # refresh firmware metadata for `fwupdmgr update`
     "snapper-timeline.timer",  # hourly /home snapshots (snapper-home script)
+    "docker.socket",           # start Docker on demand (no docker group, see binds.lua)
+    "linux-modules-cleanup.service",  # kernel-modules-hook: clean old modules after reboot
 ]
 
 # ufw rules ("<from> <port> <proto>") added when ufw is enabled

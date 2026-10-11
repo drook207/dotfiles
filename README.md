@@ -50,10 +50,11 @@ chezmoi re-add <file>                  # copy a file changed in ~ back into the 
 | `dot_local/share/wallpapers/` | Wallpaper (pixel-art castle) |
 | `.chezmoidata/packages.toml` | Packages the configs need (repo + AUR), system services to enable and ufw rules |
 | `.chezmoiexternal.toml` | Repos chezmoi clones (ghostty cursor shaders) |
-| `run_onchange_after_install-packages.sh.tmpl` | Installs missing packages with pacman/paru, enables the services, adds the ufw rules |
+| `run_onchange_after_00-install-packages.sh.tmpl` | Installs missing packages with pacman/paru, enables the services, adds the ufw rules |
 | `run_onchange_after_gtk-qt-settings.sh` | GTK/Qt font and cursor settings that live outside `~/.config` files |
-| `run_onchange_after_firefox-theme.sh` | Installs Pywalfox into the default Firefox profile |
+| `run_onchange_after_firefox-theme.sh.tmpl` | Installs Pywalfox into the default Firefox profile |
 | `run_onchange_after_snapper-home.sh.tmpl` | Hourly snapper snapshots of `/home` (10 hourly, 7 daily, 4 weekly) |
+| `run_onchange_after_docker-localhost.sh.tmpl` | Publishes Docker container ports on 127.0.0.1 by default (Docker bypasses ufw) |
 | `run_onchange_after_battery-charge-limit.sh.tmpl` | Charge battery to 75-80 % where supported (ThinkPads); no-op elsewhere |
 
 ## Theme
@@ -78,11 +79,16 @@ Hyprland follows Omarchy's defaults (`dot_config/hypr/config/binds.lua`):
 | `SUPER+T` / `SUPER+F` | Float / fullscreen |
 | `SUPER+SHIFT+B` / `SUPER+SHIFT+F` / `SUPER+SHIFT+N` | Browser / files / Neovim |
 | `SUPER+CTRL+L` | Lock |
+| `SUPER+K` | Searchable list of all keybindings |
+| `ALT+PRINT` / `SUPER+CTRL+PRINT` | Screen recording on/off / copy text from a region (OCR) |
+| `SUPER+SHIFT+D` | lazydocker (asks for sudo; no docker group, like Omarchy) |
 | `SUPER+ESCAPE` | Session menu |
 | `PRINT` | Screenshot |
 
 herdr uses Omarchy's tmux-style keys with `Ctrl+Space` as prefix
 (`dot_config/herdr/config.toml`).
+Inside herdr, the fish functions `hdl <ai>`, `hds [ai]`, `hdlm <ai>` and
+`hsl <n> <cmd>` open Omarchy's dev layouts (editor, AI, terminal, lazygit).
 
 ## Things that aren't obvious
 

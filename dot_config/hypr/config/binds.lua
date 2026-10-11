@@ -47,6 +47,8 @@ bind("SUPER + SHIFT + ALT + B",      "Browser (private)", BROWSER .. " --private
 bind("SUPER + SHIFT + F",            "File manager",      FILE_MANAGER)
 bind("SUPER + SHIFT + N",            "Editor",            EDITOR)
 bind("SUPER + SHIFT + SLASH",        "Passwords",         "1password")
+-- Docker isn't reachable without sudo on purpose (docker group = root), like Omarchy
+bind("SUPER + SHIFT + D",            "Docker",            TERMINAL .. " -e sudo lazydocker")
 
 bind("SUPER + SHIFT + A",            "ChatGPT",           webapp("https://chatgpt.com"))
 bind("SUPER + SHIFT + ALT + A",      "Grok",              webapp("https://grok.com"))
