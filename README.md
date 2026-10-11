@@ -19,7 +19,7 @@ Assumes CachyOS: `noctalia` and `swash` come from the CachyOS repos.
 
 ```sh
 sudo pacman -S chezmoi
-chezmoi init --apply https://github.com/drook207/dotfiles_stow.git
+chezmoi init --apply https://github.com/drook207/dotfiles.git
 ```
 
 Run it in a terminal: installing packages needs sudo, and paru asks you to
