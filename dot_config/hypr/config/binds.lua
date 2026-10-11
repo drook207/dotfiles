@@ -6,11 +6,15 @@
 local noctCall = "noctalia msg "
 local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empty (e.g. "")
 
+-- Every binding made through bind(), for the keybindings menu (SUPER+K)
+local bindList = {}
+
 -- bind(keys, description, action, opts)
 -- action: a dispatcher, a Lua function, or a shell command string (launched via UWSM)
 local function bind(keys, description, action, opts)
     opts = opts or {}
     opts.description = description
+    table.insert(bindList, { keys = keys, description = description })
     if type(action) == "string" then
         action = hl.dsp.exec_cmd(launchPrefix .. action)
     end
@@ -162,6 +166,7 @@ bind("XF86PowerOff",           "Power menu",  noct("panel-toggle session"), { lo
 bind("SUPER + CTRL + Q",       "Calculator",  CALCULATOR)
 bind("XF86Calculator",         "Calculator",  CALCULATOR)
 
+bind("SUPER + K",                    "Keybindings",          TERMINAL .. " --class=dev.drook.keybindings -e hypr-keybindings")
 bind("SUPER + SHIFT + SPACE",        "Toggle top bar",       noct("bar-toggle"))
 bind("SUPER + CTRL + SPACE",         "Background switcher",  noct("panel-toggle wallpaper"))
 bind("SUPER + SHIFT + CTRL + SPACE", "Theme / settings",     noct("settings-toggle"))
@@ -259,3 +264,32 @@ bind("SUPER + C",        "Universal copy",    universal_clipboard_shortcut("CTRL
 bind("SUPER + V",        "Universal paste",   universal_clipboard_shortcut("CTRL", "V", "SHIFT", "Insert"))
 bind("SUPER + X",        "Universal cut",     send_shortcut_once("CTRL", "X"))
 bind("SUPER + CTRL + V", "Clipboard manager", noct("panel-toggle clipboard"))
+
+-----------------------------
+---- KEYBINDINGS MENU DATA ----
+-----------------------------
+
+-- Write "keys<TAB>description" for every binding to $XDG_RUNTIME_DIR, where
+-- ~/.local/bin/hypr-keybindings reads it. hyprctl can't show keycode bindings
+-- (code:N) by name, so they're translated here (US layout labels).
+local keyNames = {
+    ["code:10"] = "1", ["code:11"] = "2", ["code:12"] = "3", ["code:13"] = "4", ["code:14"] = "5",
+    ["code:15"] = "6", ["code:16"] = "7", ["code:17"] = "8", ["code:18"] = "9", ["code:19"] = "0",
+    ["code:20"] = "-", ["code:21"] = "=", ["code:34"] = "[", ["code:35"] = "]",
+    ["mouse:272"] = "Left click", ["mouse:273"] = "Right click",
+    mouse_up = "Scroll up", mouse_down = "Scroll down",
+}
+
+pcall(function()
+    local dir = os.getenv("XDG_RUNTIME_DIR")
+    if not dir then return end
+    local file = io.open(dir .. "/hypr-keybindings.tsv", "w")
+    if not file then return end
+    for _, b in ipairs(bindList) do
+        if b.description then
+            local keys = b.keys:gsub("[%w_:]+", function(k) return keyNames[k] or k end)
+            file:write(keys, "\t", b.description, "\n")
+        end
+    end
+    file:close()
+end)

@@ -67,6 +67,9 @@ hl.window_rule({
     },
 })
 
+-- Keybindings menu (SUPER+K)
+hl.window_rule({ match = { class = "^(dev\\.drook\\.keybindings)$" }, float = true, center = true, size = { "monitor_w*0.45", "monitor_h*0.60" } })
+
 -- Opacity Overrides
 local terminals = "^(kitty|ghostty|com\\.mitchellh\\.ghostty|[Kk]onsole|Alacritty|gnome-terminal|xfce[0-9]?-terminal)$"
 

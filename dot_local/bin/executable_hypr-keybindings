@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Searchable list of Hyprland keybindings (SUPER+K). The list is written by
+# ~/.config/hypr/config/binds.lua each time the Hyprland config loads.
+set -euo pipefail
+
+list="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr-keybindings.tsv"
+if [ ! -s "$list" ]; then
+    echo "No keybindings list at $list - reload Hyprland (hyprctl reload)." >&2
+    read -r -n 1 -s
+    exit 1
+fi
+
+column -t -s $'\t' "$list" |
+    fzf --reverse --no-sort --no-multi --info=inline \
+        --prompt 'Keybindings  ' --header 'Type to search, Esc to close' \
+        --bind 'enter:ignore' || true
