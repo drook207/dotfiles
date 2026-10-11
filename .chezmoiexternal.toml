@@ -1,0 +1,26 @@
+# Third-party repos previously committed as bare gitlinks (no .gitmodules).
+
+[".config/ghostty/shaders"]
+    type = "git-repo"
+    url = "https://github.com/sahaj-b/ghostty-cursor-shaders.git"
+    refreshPeriod = "168h"
+
+[".config/tmux/plugins/tpm"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tpm.git"
+    refreshPeriod = "168h"
+
+[".config/tmux/plugins/tmux-sensible"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tmux-sensible.git"
+    refreshPeriod = "168h"
+
+[".config/tmux/plugins/tmux-sessionx"]
+    type = "git-repo"
+    url = "https://github.com/omerxx/tmux-sessionx.git"
+    refreshPeriod = "168h"
+
+[".config/tmux/plugins/tmux-ukiyo"]
+    type = "git-repo"
+    url = "https://github.com/Nybkox/tmux-ukiyo.git"
+    refreshPeriod = "168h"

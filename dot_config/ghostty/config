@@ -5,7 +5,7 @@
 command = /usr/bin/fish
 
 #Custom shader for trailing cursor
-custom-shader = shaders/cursor_warp.glsl
+custom-shader = shaders/ghostty/cursor_warp.glsl
 
 # Font
 font-family = "JetBrainsMono Nerd Font"

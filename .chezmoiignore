@@ -1,0 +1,9 @@
+# hypr + omarchy theme depend on omarchy's defaults in ~/.local/share/omarchy;
+# skip them on machines without omarchy (e.g. CachyOS with its Lua Hyprland config).
+{{- if not (stat (joinPath .chezmoi.homeDir ".local/share/omarchy")) }}
+.config/hypr
+.config/omarchy
+{{- end }}
+
+# fish rewrites its universal variables at runtime
+.config/fish/fish_variables
