@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Limit battery charging to 75-80 % on laptops whose kernel driver supports it
+# (e.g. ThinkPads via thinkpad_acpi); a no-op everywhere else. Installs a udev
+# rule so the limit is set again on every boot, and applies it right away.
+# Needs sudo, so outside an interactive terminal it fails with a hint instead.
+#
+# Re-runs whenever support or the installed rule changes:
+# {{ output "sh" "-c" "ls /sys/class/power_supply/*/charge_control_end_threshold 2>/dev/null; cat /etc/udev/rules.d/90-battery-charge-limit.rules 2>/dev/null; true" | sha256sum }}
+set -euo pipefail
+
+start=75
+end=80
+rule_file=/etc/udev/rules.d/90-battery-charge-limit.rules
+rule="ACTION==\"add\", SUBSYSTEM==\"power_supply\", KERNEL==\"BAT[0-9]*\", ATTR{charge_control_end_threshold}==\"*\", ATTR{charge_control_start_threshold}=\"$start\", ATTR{charge_control_end_threshold}=\"$end\""
+
+shopt -s nullglob
+batteries=(/sys/class/power_supply/BAT*/charge_control_end_threshold)
+[ ${#batteries[@]} -gt 0 ] || exit 0
+
+up_to_date=true
+[ "$(cat "$rule_file" 2>/dev/null)" = "$rule" ] || up_to_date=false
+for f in "${batteries[@]}"; do
+    dir=${f%/*}
+    [ "$(cat "$dir/charge_control_start_threshold")" = "$start" ] || up_to_date=false
+    [ "$(cat "$dir/charge_control_end_threshold")" = "$end" ] || up_to_date=false
+done
+$up_to_date && exit 0
+
+if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo "battery-charge-limit: not applied; run 'chezmoi apply' in a terminal" >&2
+    exit 1
+fi
+
+echo "$rule" | sudo tee "$rule_file" >/dev/null
+for f in "${batteries[@]}"; do
+    dir=${f%/*}
+    # the driver rejects start >= end, so pick the order that keeps start < end
+    if [ "$start" -lt "$(cat "$dir/charge_control_end_threshold")" ]; then
+        echo "$start" | sudo tee "$dir/charge_control_start_threshold" >/dev/null
+        echo "$end" | sudo tee "$dir/charge_control_end_threshold" >/dev/null
+    else
+        echo "$end" | sudo tee "$dir/charge_control_end_threshold" >/dev/null
+        echo "$start" | sudo tee "$dir/charge_control_start_threshold" >/dev/null
+    fi
+done
