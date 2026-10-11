@@ -29,6 +29,24 @@ and paru for reviewing AUR build scripts), then fetches the age key from
 again. Afterwards: log out and back in, start Firefox twice (installs
 Pywalfox), and run `gh auth login` / `glab auth login`.
 
+### Ubuntu 26.04
+
+The same command works on Ubuntu 26.04 (`run_onchange_after_00-install-packages-ubuntu.sh.tmpl`,
+package list in `.chezmoidata/ubuntu.toml`). It adds the APT sources Ubuntu
+lacks: `ppa:cppiber/hyprland` (Hyprland 0.56; resolute only has 0.53, without
+the Lua config), noctalia's repo, 1Password and mise. The Nerd Font, lazydocker
+and LocalSend come pinned from GitHub, herdr from its installer; `fd`/`bat`
+are linked to Ubuntu's `fdfind`/`batcat`. Log in via GDM with the
+"Hyprland (uwsm-managed)" session.
+
+Differences from Arch:
+
+- No screen recording (`ALT+PRINT`): gpu-screen-recorder isn't packaged.
+- noctalia copies screenshots to the clipboard instead of opening swash.
+- Firefox is a snap: Pywalfox installs, but noctalia's native messaging host
+  can't reach a snap Firefox, so the Paper Ink colors don't apply there.
+- snapper, btrfs scrub and kernel-modules-hook are Arch/btrfs-only and skipped.
+
 ## Day to day
 
 ```sh

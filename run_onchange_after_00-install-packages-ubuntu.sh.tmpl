@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+# Ubuntu counterpart of 00-install-packages: set up the extra APT sources
+# (Hyprland PPA, noctalia, 1Password, mise), install the packages from
+# .chezmoidata/ubuntu.toml, fetch what Ubuntu doesn't package (Nerd Font,
+# lazydocker, LocalSend, herdr), enable services and add the ufw rules.
+# Does nothing on other distributions. Needs sudo, so outside an interactive
+# terminal it fails with a hint instead.
+#
+# Re-runs whenever the lists or the installed state change:
+{{- $apt := .ubuntu.apt }}
+{{- $check := printf ". /etc/os-release; [ \"$ID\" = ubuntu ] || exit 0; dpkg-query -W -f '${Package} ${Status}\\n' %s 2>&1; ls /etc/apt/sources.list.d; ls ~/.local/share/fonts/JetBrainsMonoNerd 2>&1; command -v herdr lazydocker fd bat; systemctl is-enabled %s; cat /etc/ufw/user.rules ~/.local/state/dotfiles/ufw-rules-added 2>/dev/null; true" (join " " $apt) (join " " .ubuntu.services) }}
+# {{ list $apt .ubuntu.downloads .ubuntu.services .packages.firewall (output "sh" "-c" $check) | toJson | sha256sum }}
+set -euo pipefail
+
+. /etc/os-release
+[ "${ID:-}" = ubuntu ] || exit 0
+
+apt_pkgs=({{ range $apt }}{{ . | quote }} {{ end }})
+services=({{ range .ubuntu.services }}{{ . | quote }} {{ end }})
+firewall_rules=({{ range .packages.firewall.allow }}{{ . | quote }} {{ end }})
+read -r font_url font_sha <<<{{ .ubuntu.downloads.nerd_font | quote }}
+read -r lazydocker_url lazydocker_sha <<<{{ .ubuntu.downloads.lazydocker | quote }}
+read -r localsend_url localsend_sha <<<{{ .ubuntu.downloads.localsend | quote }}
+
+font_dir="$HOME/.local/share/fonts/JetBrainsMonoNerd"
+sources=/etc/apt/sources.list.d
+
+# Ubuntu names fd and bat fdfind/batcat; fish, fzf.fish and the configs use
+# the upstream names. No sudo needed, so do it every time.
+mkdir -p "$HOME/.local/bin"
+[ -x /usr/bin/fdfind ] && ln -sf /usr/bin/fdfind "$HOME/.local/bin/fd"
+[ -x /usr/bin/batcat ] && ln -sf /usr/bin/batcat "$HOME/.local/bin/bat"
+
+# --- what's missing -----------------------------------------------------------
+missing_repos=()
+[ -f "$sources/noctalia-resolute.sources" ] || missing_repos+=(noctalia)
+grep -rqs cppiber/hyprland "$sources" || missing_repos+=(hyprland-ppa)
+[ -f "$sources/1password.list" ] || missing_repos+=(1password)
+[ -f "$sources/mise.list" ] || missing_repos+=(mise)
+
+missing_apt=()
+for p in "${apt_pkgs[@]}"; do
+    dpkg-query -W -f '${Status}' "$p" 2>/dev/null | grep -q "install ok installed" || missing_apt+=("$p")
+done
+
+missing_extra=()
+compgen -G "$font_dir/*.ttf" >/dev/null || missing_extra+=(nerd-font)
+[ -x /usr/local/bin/lazydocker ] || missing_extra+=(lazydocker)
+dpkg-query -W -f '${Status}' localsend 2>/dev/null | grep -q "install ok installed" || missing_extra+=(localsend)
+command -v herdr >/dev/null || [ -x "$HOME/.local/bin/herdr" ] || missing_extra+=(herdr)
+
+disabled_services=()
+for s in "${services[@]}"; do
+    systemctl is-enabled -q "$s" 2>/dev/null || disabled_services+=("$s")
+done
+
+# On Ubuntu /etc/ufw/user.rules is usually root-only; then a marker file
+# records that the rules were added (ufw itself skips existing rules).
+missing_rules=()
+ufw_marker="$HOME/.local/state/dotfiles/ufw-rules-added"
+if systemctl is-enabled -q ufw 2>/dev/null; then
+    if ufw_rules=$(cat /etc/ufw/user.rules 2>/dev/null); then
+        for r in "${firewall_rules[@]}"; do
+            read -r from port proto <<<"$r"
+            grep -q "^### tuple ### allow $proto $port 0.0.0.0/0 any $from in" <<<"$ufw_rules" ||
+                missing_rules+=("$r")
+        done
+    elif [ "$(cat "$ufw_marker" 2>/dev/null)" != "${firewall_rules[*]}" ]; then
+        missing_rules=("${firewall_rules[@]}")
+    fi
+fi
+
+all=("${missing_repos[@]/#/repo:}" "${missing_apt[@]}" "${missing_extra[@]}" "${disabled_services[@]}" "${missing_rules[@]/#/ufw:}")
+[ ${#all[@]} -gt 0 ] || exit 0
+
+if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo "install-packages-ubuntu: missing/not enabled: ${all[*]}" >&2
+    echo "install-packages-ubuntu: run 'chezmoi apply' in a terminal to install them" >&2
+    exit 1
+fi
+
+# --- APT sources ---------------------------------------------------------------
+if [ ${#missing_repos[@]} -gt 0 ]; then
+    sudo apt-get update
+    sudo apt-get install -y curl gnupg ca-certificates software-properties-common
+    sudo install -dm 755 /etc/apt/keyrings
+    tmp=$(mktemp -d)
+    trap 'rm -rf "$tmp"' EXIT
+    for repo in "${missing_repos[@]}"; do
+        case $repo in
+            noctalia)
+                curl -fsSL -o "$tmp/nickh-archive-keyring.deb" https://pkg.noctalia.dev/deb/nickh-archive-keyring.deb
+                sudo dpkg -i "$tmp/nickh-archive-keyring.deb"
+                curl -fsSL https://pkg.noctalia.dev/deb/noctalia-resolute.sources |
+                    sudo tee "$sources/noctalia-resolute.sources" >/dev/null
+                ;;
+            hyprland-ppa)
+                # Hyprland >= 0.55 (Lua config); resolute itself ships 0.53
+                sudo add-apt-repository -y ppa:cppiber/hyprland
+                ;;
+            1password)
+                curl -fsSL https://downloads.1password.com/linux/keys/1password.asc |
+                    sudo gpg --dearmor --yes --output /usr/share/keyrings/1password-archive-keyring.gpg
+                echo "deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main" |
+                    sudo tee "$sources/1password.list" >/dev/null
+                sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22 /usr/share/debsig/keyrings/AC2D62742012EA22
+                curl -fsSL https://downloads.1password.com/linux/debian/debsig/1password.pol |
+                    sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol >/dev/null
+                curl -fsSL https://downloads.1password.com/linux/keys/1password.asc |
+                    sudo gpg --dearmor --yes --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+                ;;
+            mise)
+                curl -fsSL https://mise.jdx.dev/gpg-key.pub |
+                    sudo gpg --dearmor --yes --output /etc/apt/keyrings/mise-archive-keyring.gpg
+                echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=amd64] https://mise.jdx.dev/deb stable main" |
+                    sudo tee "$sources/mise.list" >/dev/null
+                ;;
+        esac
+    done
+fi
+
+# --- packages ------------------------------------------------------------------
+if [ ${#missing_apt[@]} -gt 0 ]; then
+    sudo apt-get update
+    sudo apt-get install "${missing_apt[@]}"
+    [ -x /usr/bin/fdfind ] && ln -sf /usr/bin/fdfind "$HOME/.local/bin/fd"
+    [ -x /usr/bin/batcat ] && ln -sf /usr/bin/batcat "$HOME/.local/bin/bat"
+fi
+
+# --- downloads (pinned, SHA-256 checked) ---------------------------------------
+fetch() { # fetch <url> <sha256> <out>
+    curl -fsSL -o "$3" "$1"
+    echo "$2  $3" | sha256sum -c --status || { echo "checksum mismatch for $1" >&2; exit 1; }
+}
+dl=$(mktemp -d)
+trap 'rm -rf "$dl" "${tmp:-}"' EXIT
+for extra in "${missing_extra[@]}"; do
+    case $extra in
+        nerd-font)
+            fetch "$font_url" "$font_sha" "$dl/font.tar.xz"
+            mkdir -p "$font_dir"
+            tar -xJf "$dl/font.tar.xz" -C "$font_dir"
+            fc-cache -f "$font_dir"
+            ;;
+        lazydocker)
+            fetch "$lazydocker_url" "$lazydocker_sha" "$dl/lazydocker.tar.gz"
+            tar -xzf "$dl/lazydocker.tar.gz" -C "$dl" lazydocker
+            # /usr/local/bin so `sudo lazydocker` (SUPER+SHIFT+D) finds it
+            sudo install -m 755 "$dl/lazydocker" /usr/local/bin/lazydocker
+            ;;
+        localsend)
+            fetch "$localsend_url" "$localsend_sha" "$dl/localsend.deb"
+            sudo apt-get install "$dl/localsend.deb"
+            ;;
+        herdr)
+            # official installer: ~/.local/bin/herdr, verifies its own SHA-256
+            curl -fsSL https://herdr.dev/install.sh | sh
+            ;;
+    esac
+done
+
+# --- services and firewall -----------------------------------------------------
+for s in "${disabled_services[@]}"; do
+    systemctl cat "$s" >/dev/null 2>&1 && sudo systemctl enable --now "$s"
+done
+
+for r in "${missing_rules[@]}"; do
+    read -r from port proto <<<"$r"
+    sudo ufw allow from "$from" to any port "$port" proto "$proto"
+done
+if [ ${#missing_rules[@]} -gt 0 ]; then
+    mkdir -p "$(dirname "$ufw_marker")"
+    echo "${firewall_rules[*]}" >"$ufw_marker"
+fi

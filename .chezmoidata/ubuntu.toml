@@ -1,0 +1,39 @@
+# Ubuntu 26.04 (resolute) counterpart of packages.toml, handled by
+# run_onchange_after_00-install-packages-ubuntu.sh.tmpl. Package names are
+# checked against resolute; extra APT sources (Hyprland PPA, noctalia,
+# 1Password, mise) are set up by that script.
+
+[ubuntu]
+apt = [
+    # base tooling
+    "git", "curl", "wget", "jq", "unzip", "gnupg", "ca-certificates",
+    "software-properties-common", "gh", "glab", "whois", "fwupd", "smartmontools",
+    # shell (fd-find/bat install as fdfind/batcat; the script links fd/bat)
+    "fish", "starship", "zoxide", "fzf", "eza", "fd-find", "ripgrep", "bat",
+    # terminal apps
+    "ghostty", "neovim", "lazygit", "btop", "tree-sitter-cli",
+    # development (mise from its own repo, lazydocker from GitHub)
+    "mise", "docker.io", "docker-compose-v2", "docker-buildx",
+    # desktop: Hyprland stack from ppa:cppiber/hyprland, noctalia from its repo
+    "hyprland", "uwsm", "hyprpicker", "xdg-desktop-portal-hyprland", "hyprland-guiutils",
+    "noctalia", "grim", "slurp", "wl-clipboard", "libnotify-bin",
+    "dolphin", "gnome-calculator", "qt6ct", "qt6-wayland", "breeze-icon-theme",
+    # media, documents, drives, OCR
+    "mpv", "mpv-mpris", "imv", "evince", "xournalpp", "gvfs-backends", "gnome-disk-utility",
+    "tesseract-ocr", "tesseract-ocr-eng", "tesseract-ocr-deu",
+    # 1Password from its repo
+    "1password", "1password-cli",
+]
+
+# System services enabled (and started); smartd's unit is smartmontools on Ubuntu
+services = [
+    "docker.socket",
+    "fwupd-refresh.timer",
+    "smartmontools.service",
+]
+
+# Downloaded from GitHub releases, pinned and checked against their SHA-256
+[ubuntu.downloads]
+nerd_font = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz 04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf"
+lazydocker = "https://github.com/jesseduffield/lazydocker/releases/download/v0.25.2/lazydocker_0.25.2_Linux_x86_64.tar.gz 0d9dbfc26068b218e7ed84b104748cadc6e3cf733c0afd35465306fb39b9523c"
+localsend = "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-x86-64.deb cc42a4f3eacdcb25ec31f0016b1272acb003145ab30484db8965450e20c72cd2"

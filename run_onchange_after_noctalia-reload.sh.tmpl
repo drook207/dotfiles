@@ -2,7 +2,7 @@
 # Reload a running noctalia when its config or palette changes, so a fresh
 # `chezmoi apply` (e.g. on a new machine) takes effect without a restart.
 # Re-runs whenever these change:
-# config.toml {{ include "dot_config/noctalia/config.toml" | sha256sum }}
+# config.toml {{ include "dot_config/noctalia/config.toml.tmpl" | sha256sum }}
 # palette     {{ include "dot_config/noctalia/palettes/KanagawaPaperInk.json" | sha256sum }}
 set -euo pipefail
 

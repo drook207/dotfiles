@@ -2,7 +2,7 @@
 # Install Firefox add-ons into the default profile. Takes effect the next time
 # Firefox starts. Re-runs whenever this script changes, a profile appears (on a
 # new machine only after Firefox's first start) or an add-on goes missing:
-# {{ output "sh" "-c" "cat ~/.mozilla/firefox/profiles.ini ~/.config/mozilla/firefox/profiles.ini 2>/dev/null; ls ~/.mozilla/firefox/*/extensions ~/.config/mozilla/firefox/*/extensions 2>/dev/null; true" | sha256sum }}
+# {{ output "sh" "-c" "cat ~/.mozilla/firefox/profiles.ini ~/.config/mozilla/firefox/profiles.ini ~/snap/firefox/common/.mozilla/firefox/profiles.ini 2>/dev/null; ls ~/.mozilla/firefox/*/extensions ~/.config/mozilla/firefox/*/extensions ~/snap/firefox/common/.mozilla/firefox/*/extensions 2>/dev/null; true" | sha256sum }}
 #  - Pywalfox: lets noctalia's built-in firefox-theme host push the active
 #    palette (Kanagawa Paper Ink) to Firefox; it re-applies the last colors on
 #    startup even when noctalia isn't running
@@ -15,7 +15,8 @@ addons=(
 
 # Like Firefox itself: an existing ~/.mozilla/firefox wins over the XDG location.
 root=""
-for dir in "$HOME/.mozilla/firefox" "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"; do
+# Ubuntu ships Firefox as a snap, with its profiles under ~/snap/firefox.
+for dir in "$HOME/.mozilla/firefox" "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox" "$HOME/snap/firefox/common/.mozilla/firefox"; do
     if [ -f "$dir/profiles.ini" ]; then
         root="$dir"
         break

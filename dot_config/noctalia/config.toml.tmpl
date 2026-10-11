@@ -42,7 +42,10 @@ tint_intensity = 0.45
 
 [shell]
 font_family = "JetBrainsMono Nerd Font"
+{{- /* swash (screenshot editor) is CachyOS-only; Ubuntu has no equivalent package */}}
+{{- if ne .chezmoi.osRelease.id "ubuntu" }}
 clipboard_image_action_command = "swash --stdin --name \"swash-$(date +'%Y-%m-%d_%H:%M:%S').png\""
+{{- end }}
 launch_apps_as_systemd_services = true
 polkit_agent = true
 settings_show_advanced = true
@@ -57,10 +60,16 @@ settings_show_advanced = true
     session_position = "center"
 
     [shell.screenshot]
+{{- if eq .chezmoi.osRelease.id "ubuntu" }}
+    copy_to_clipboard = true
+    pipe_to_command = false
+    save_to_file = false
+{{- else }}
     copy_to_clipboard = false
     pipe_command = "swash --stdin --name \"swash-$(date +'%Y-%m-%d_%H:%M:%S').png\""
     pipe_to_command = true
     save_to_file = false
+{{- end }}
 
     [[shell.session.actions]]
     action = "lock"

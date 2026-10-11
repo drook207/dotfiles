@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bootstrap these dotfiles on a fresh CachyOS/Arch install:
+# Bootstrap these dotfiles on a fresh CachyOS/Arch or Ubuntu 26.04 install:
 #
 #   curl -fsSL https://raw.githubusercontent.com/drook207/dotfiles/main/install.sh | bash
 #
@@ -21,17 +21,33 @@ fi
 
 say() { printf '\n\033[1;33m==> %s\033[0m\n' "$*"; }
 
-if ! command -v pacman >/dev/null; then
-    echo "This needs an Arch-based system (pacman)." >&2
-    exit 1
-fi
 if [ "$(id -u)" -eq 0 ]; then
     echo "Run this as your normal user, not root (it uses sudo where needed)." >&2
     exit 1
 fi
 
-say "Installing git, chezmoi and build tools"
-sudo pacman -S --needed git chezmoi base-devel
+. /etc/os-release
+if command -v pacman >/dev/null; then
+    say "Installing git, chezmoi and build tools"
+    sudo pacman -S --needed git chezmoi base-devel
+elif [ "${ID:-}" = ubuntu ]; then
+    if [ "${VERSION_ID:-}" != "26.04" ]; then
+        echo "Warning: made for Ubuntu 26.04 (noctalia and the Hyprland PPA target it), this is ${VERSION_ID:-unknown}." >&2
+        read -r -p "Continue anyway? [y/N] " answer
+        [ "$answer" = y ] || exit 1
+    fi
+    say "Installing git and curl"
+    sudo apt-get update
+    sudo apt-get install -y git curl ca-certificates
+    if ! command -v chezmoi >/dev/null; then
+        say "Installing chezmoi to ~/.local/bin (not packaged for Ubuntu)"
+        sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+    fi
+    export PATH="$HOME/.local/bin:$PATH"
+else
+    echo "Supported: CachyOS/Arch (pacman) and Ubuntu 26.04." >&2
+    exit 1
+fi
 
 if [ -d "$source_dir/.git" ]; then
     say "Updating $source_dir"
@@ -78,6 +94,7 @@ say "Done"
 cat <<'EOF'
 Next steps:
   - Log out and back in (PATH, cursor, Hyprland and noctalia pick everything up).
+    Ubuntu: pick the "Hyprland (uwsm-managed)" session on the GDM login screen.
   - Firefox: start it, close it, start it again (installs and enables Pywalfox).
   - gh auth login   (GitHub, also needed for pushing these dotfiles)
   - glab auth login (GitLab)
