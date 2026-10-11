@@ -15,3 +15,6 @@ abbr -a ll exa -al
 abbr -a find fd
 starship init fish | source
 zoxide init --cmd cd fish | source
+
+# Created by `pipx` on 2026-09-09 18:52:59
+set PATH $PATH /home/drook207/.local/bin
