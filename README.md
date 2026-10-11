@@ -106,5 +106,8 @@ herdr uses Omarchy's tmux-style keys with `Ctrl+Space` as prefix
   `~/.mozilla/native-messaging-hosts/` even when the profile is in
   `~/.config/mozilla/`. Firefox only switches to the old layout when
   `~/.mozilla/firefox` exists.
+- **Neovim plugin versions are pinned** by the tracked `lazy-lock.json`. After
+  `:Lazy update`, run `chezmoi re-add ~/.config/nvim/lazy-lock.json` and commit,
+  otherwise `chezmoi verify` reports drift.
 - **Idle:** the screen locks after 10 minutes and turns off after 11.
   `SUPER+CTRL+I` toggles caffeine (stay awake).

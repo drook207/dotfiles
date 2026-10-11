@@ -5,7 +5,7 @@
 [packages]
 pacman = [
     # base tooling
-    "chezmoi", "git", "github-cli", "curl", "jq", "unzip", "pacman-contrib", "fwupd", "snapper",
+    "chezmoi", "git", "github-cli", "glab", "curl", "jq", "unzip", "pacman-contrib", "fwupd", "snapper",
     # shell
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
