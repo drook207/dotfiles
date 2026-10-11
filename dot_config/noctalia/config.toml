@@ -96,6 +96,8 @@ source = "custom"
 
     [theme.templates]
     builtin_ids = [ "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt", "alacritty" ]
+    # Firefox via the Pywalfox extension (manifest in ~/.mozilla/native-messaging-hosts)
+    community_ids = [ "pywalfox" ]
 
 [wallpaper.default]
 path = "~/.local/share/wallpapers/japanese-castle-pixel-digital-art.jpg"

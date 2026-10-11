@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Install the "Kanagawa Wave" Firefox theme into the default profile and make
-# it the active theme. Takes effect the next time Firefox starts.
-# Re-runs whenever this script changes.
+# Install Firefox add-ons into the default profile. Takes effect the next time
+# Firefox starts. Re-runs whenever this script changes.
+#  - Pywalfox: lets noctalia's built-in firefox-theme host push the active
+#    palette (Kanagawa Paper Ink) to Firefox; it re-applies the last colors on
+#    startup even when noctalia isn't running
 set -euo pipefail
 
-theme_id="{7efc2a80-496f-49b1-88db-4ddd7d312757}"
-theme_url="https://addons.mozilla.org/firefox/downloads/file/4847676/kanagawa_wave_dark_theme-2.5.xpi"
-theme_sha256="57da9fe43e2c37a5e9eeaaf350128e94c373869e04a345acb85dc91372824953"
+# id url sha256
+addons=(
+    "pywalfox@frewacom.org https://addons.mozilla.org/firefox/downloads/file/4834767/pywalfox-2.1.1.xpi b7a7a86d1d49a8309758ce1d38492975abe07a61e3788e2d913c70a4d07758b4"
+)
 
+# Like Firefox itself: an existing ~/.mozilla/firefox wins over the XDG location.
 root=""
-for dir in "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox" "$HOME/.mozilla/firefox"; do
+for dir in "$HOME/.mozilla/firefox" "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"; do
     if [ -f "$dir/profiles.ini" ]; then
         root="$dir"
         break
@@ -44,18 +48,21 @@ if [ ! -d "$profile_dir" ]; then
     exit 0
 fi
 
-xpi="$profile_dir/extensions/$theme_id.xpi"
-if ! echo "$theme_sha256  $xpi" | sha256sum -c --status 2>/dev/null; then
-    tmp=$(mktemp)
-    trap 'rm -f "$tmp"' EXIT
-    curl -fsSL -o "$tmp" "$theme_url"
-    echo "$theme_sha256  $tmp" | sha256sum -c --status
-    mkdir -p "$profile_dir/extensions"
-    install -m 644 "$tmp" "$xpi"
-fi
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+mkdir -p "$profile_dir/extensions"
+for addon in "${addons[@]}"; do
+    read -r id url sha256 <<<"$addon"
+    xpi="$profile_dir/extensions/$id.xpi"
+    if ! echo "$sha256  $xpi" | sha256sum -c --status 2>/dev/null; then
+        curl -fsSL -o "$tmp" "$url"
+        echo "$sha256  $tmp" | sha256sum -c --status
+        install -m 644 "$tmp" "$xpi"
+    fi
+done
 
-# user.js is applied on every start: select the theme, and don't auto-disable
-# add-ons placed in the profile's extensions folder (scope 1) so the theme loads.
+# user.js is applied on every start: don't auto-disable add-ons placed in the
+# profile's extensions folder (scope 1) so they load.
 userjs="$profile_dir/user.js"
 touch "$userjs"
 set_pref() {
@@ -63,5 +70,6 @@ set_pref() {
     sed -i "/user_pref(\"$name\",/d" "$userjs"
     echo "user_pref(\"$name\", $value);" >>"$userjs"
 }
-set_pref extensions.activeThemeID "\"$theme_id\""
+# Drop the theme pref set by earlier versions of this script
+sed -i '/user_pref("extensions.activeThemeID",/d' "$userjs"
 set_pref extensions.autoDisableScopes 14
