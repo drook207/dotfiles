@@ -1,8 +1,2 @@
-# The omarchy theme depends on omarchy's defaults in ~/.local/share/omarchy;
-# skip it on machines without omarchy.
-{{- if not (stat (joinPath .chezmoi.homeDir ".local/share/omarchy")) }}
-.config/omarchy
-{{- end }}
-
 # fish rewrites its universal variables at runtime
 .config/fish/fish_variables
