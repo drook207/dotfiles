@@ -1,0 +1,23 @@
+# Packages the dotfiles rely on, installed by run_onchange_after_install-packages.sh.tmpl.
+# Repo names are CachyOS/Arch; "aur" packages are built with paru.
+
+[packages]
+pacman = [
+    # base tooling
+    "chezmoi", "git", "github-cli", "curl", "jq", "unzip",
+    # shell
+    "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
+    # terminal apps
+    "ghostty", "tmux", "neovim", "lazygit", "btop",
+    # desktop
+    "hyprland", "uwsm", "noctalia", "hyprpicker", "grim", "wl-clipboard", "swash",
+    "dolphin", "gnome-calculator", "firefox",
+    # look and feel
+    "ttf-jetbrains-mono-nerd", "adw-gtk-theme", "breeze-icons", "qt6ct",
+]
+aur = [
+    "herdr-bin",                # SUPER+CTRL+Return
+    "sesh-bin",                 # tmux session picker (prefix+o)
+    "bibata-cursor-theme-bin",  # cursor theme set in uwsm/env
+    "1password",                # SUPER+SHIFT+/
+]
