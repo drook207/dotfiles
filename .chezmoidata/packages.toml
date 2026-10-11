@@ -1,6 +1,7 @@
 # Packages the dotfiles rely on and system services to enable, handled by
 # run_onchange_after_00-install-packages.sh.tmpl.
-# Repo names are CachyOS/Arch; "aur" packages are built with paru.
+# Repo names are CachyOS/Arch; "aur" packages are built with paru, which the
+# script always installs (CachyOS repo, or built from the AUR on plain Arch).
 
 [packages]
 pacman = [
@@ -28,6 +29,7 @@ pacman = [
 aur = [
     "herdr-bin",                # SUPER+CTRL+Return
     "1password",                # SUPER+SHIFT+/
+    "1password-cli",            # `op`, 1Password on the command line
 ]
 
 # Packages that also count as installed when their command is already on the

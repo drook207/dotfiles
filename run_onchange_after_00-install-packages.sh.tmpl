@@ -8,7 +8,7 @@
 # enabled state change:
 {{- $all := concat .packages.pacman .packages.aur }}
 {{- $services := .packages.services.system }}
-{{- $check := printf "command -v pacman >/dev/null && pacman -T %s; command -v %s; systemctl is-enabled %s; true" (join " " $all) (join " " (values .packages.commands | sortAlpha)) (join " " $services) }}
+{{- $check := printf "command -v pacman >/dev/null && pacman -T %s; command -v paru %s; systemctl is-enabled %s; true" (join " " $all) (join " " (values .packages.commands | sortAlpha)) (join " " $services) }}
 # {{ list $all .packages.commands $services .packages.firewall (output "sh" "-c" $check) (output "sh" "-c" "cat /etc/ufw/user.rules /etc/ufw/user6.rules 2>/dev/null; true") | toJson | sha256sum }}
 set -euo pipefail
 
@@ -47,13 +47,17 @@ if systemctl is-enabled -q ufw 2>/dev/null; then
     done
 fi
 
+# The AUR helper itself
+missing_helper=()
+command -v paru >/dev/null || missing_helper=(paru)
+
 if [ ${#missing_repo[@]} -eq 0 ] && [ ${#missing_aur[@]} -eq 0 ] && [ ${#disabled_services[@]} -eq 0 ] &&
-    [ ${#missing_rules[@]} -eq 0 ]; then
+    [ ${#missing_rules[@]} -eq 0 ] && [ ${#missing_helper[@]} -eq 0 ]; then
     exit 0
 fi
 
 if [ ! -t 0 ] || [ ! -t 1 ]; then
-    missing_all=("${missing_repo[@]}" "${missing_aur[@]}" "${disabled_services[@]}" "${missing_rules[@]/#/ufw:}")
+    missing_all=("${missing_helper[@]}" "${missing_repo[@]}" "${missing_aur[@]}" "${disabled_services[@]}" "${missing_rules[@]/#/ufw:}")
     echo "install-packages: missing/not enabled: ${missing_all[*]}" >&2
     echo "install-packages: run 'chezmoi apply' in a terminal to install them" >&2
     exit 1
@@ -63,17 +67,18 @@ if [ ${#missing_repo[@]} -gt 0 ]; then
     sudo pacman -S --needed "${missing_repo[@]}"
 fi
 
-if [ ${#missing_aur[@]} -gt 0 ]; then
-    if ! command -v paru >/dev/null; then
-        # CachyOS ships paru; on plain Arch build paru-bin from the AUR
-        if ! sudo pacman -S --needed paru; then
-            sudo pacman -S --needed base-devel git
-            tmp=$(mktemp -d)
-            trap 'rm -rf "$tmp"' EXIT
-            git clone https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
-            (cd "$tmp/paru-bin" && makepkg -si)
-        fi
+if [ ${#missing_helper[@]} -gt 0 ]; then
+    # CachyOS ships paru; on plain Arch build paru-bin from the AUR
+    if ! sudo pacman -S --needed paru; then
+        sudo pacman -S --needed base-devel git
+        tmp=$(mktemp -d)
+        trap 'rm -rf "$tmp"' EXIT
+        git clone https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
+        (cd "$tmp/paru-bin" && makepkg -si)
     fi
+fi
+
+if [ ${#missing_aur[@]} -gt 0 ]; then
     paru -S --needed "${missing_aur[@]}"
 fi
 
