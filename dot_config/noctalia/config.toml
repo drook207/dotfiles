@@ -23,6 +23,16 @@ thickness = 35
     opacity = 1.0
     padding = 6.0
 
+[idle.behavior.lock]
+timeout = 600       # lock after 10 minutes idle
+action = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 660       # turn the screen off a minute later
+action = "screen_off"
+enabled = true
+
 [lockscreen]
 # Kanagawa: castle wallpaper, lightly blurred, washed with the theme's sumiInk surface color
 wallpaper = "~/.local/share/wallpapers/japanese-castle-pixel-digital-art.jpg"
