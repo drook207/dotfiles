@@ -107,9 +107,9 @@ Inside herdr, the fish functions `hdl <ai>`, `hds [ai]`, `hdlm <ai>` and
 - **The laptop panel is pinned to scale 1** (`eDP-1` in
   `hypr/config/monitors.lua`). Hyprland's automatic scaling would pick 1.5× on
   14" and smaller 1080p panels.
-- **`~/.local/bin` is on the session PATH** through
-  `environment.d/10-local-bin.conf`, so apps launched from Hyprland find
-  user-installed tools.
+- **`~/.local/bin` is on the session PATH** through `uwsm/env` (uwsm takes PATH
+  from the login environment and overrides `environment.d`), effective after
+  the next login. Hyprland bindings call own scripts by full path anyway.
 - **Firefox native messaging manifests** live in
   `~/.mozilla/native-messaging-hosts/` even when the profile is in
   `~/.config/mozilla/`. Firefox only switches to the old layout when

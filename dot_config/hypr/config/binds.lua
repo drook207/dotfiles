@@ -6,6 +6,17 @@
 local noctCall = "noctalia msg "
 -- Own scripts from ~/.local/bin, by full path: ghostty's -e doesn't reliably find them on the PATH
 local userBin = os.getenv("HOME") .. "/.local/bin/"
+
+-- Full path of a command if it's installed in ~/.local/bin, else the bare name
+-- (e.g. herdr from its own installer vs. the herdr-bin package)
+local function userCmd(name)
+    local f = io.open(userBin .. name, "r")
+    if f then
+        f:close()
+        return userBin .. name
+    end
+    return name
+end
 local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empty (e.g. "")
 
 -- Every binding made through bind(), for the keybindings menu (SUPER+K)
@@ -42,7 +53,7 @@ end
 ---------------------
 
 bind("SUPER + RETURN",               "Terminal",          TERMINAL)
-bind("SUPER + CTRL + RETURN",        "Herdr",             TERMINAL .. " -e herdr")
+bind("SUPER + CTRL + RETURN",        "Herdr",             TERMINAL .. " -e " .. userCmd("herdr"))
 bind("SUPER + SHIFT + RETURN",       "Browser",           BROWSER)
 bind("SUPER + SHIFT + B",            "Browser",           BROWSER)
 bind("SUPER + SHIFT + ALT + B",      "Browser (private)", BROWSER .. " --private-window")

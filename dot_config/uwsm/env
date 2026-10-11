@@ -1,3 +1,6 @@
+# User-installed tools (herdr, pipx, own scripts). uwsm takes PATH from the
+# login environment and overrides environment.d, so it has to be set here.
+export PATH="$HOME/.local/bin:$PATH"
 export BROWSER=firefox
 export QT_QPA_PLATFORM="wayland;xcb"
 export QT_QPA_PLATFORMTHEME="qt6ct"
