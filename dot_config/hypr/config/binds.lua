@@ -37,6 +37,7 @@ end
 
 bind("SUPER + RETURN",               "Terminal",          TERMINAL)
 bind("SUPER + ALT + RETURN",         "Tmux",              TERMINAL .. " -e tmux new-session -A -s Work")
+bind("SUPER + CTRL + RETURN",        "Herdr",             TERMINAL .. " -e herdr")
 bind("SUPER + SHIFT + RETURN",       "Browser",           BROWSER)
 bind("SUPER + SHIFT + B",            "Browser",           BROWSER)
 bind("SUPER + SHIFT + ALT + B",      "Browser (private)", BROWSER .. " --private-window")
