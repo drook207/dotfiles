@@ -8,7 +8,7 @@ pacman = [
     # shell
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
-    "ghostty", "tmux", "neovim", "lazygit", "btop",
+    "ghostty", "neovim", "lazygit", "btop",
     # desktop
     "hyprland", "uwsm", "noctalia", "hyprpicker", "grim", "wl-clipboard", "swash",
     "dolphin", "gnome-calculator", "firefox",
@@ -17,7 +17,6 @@ pacman = [
 ]
 aur = [
     "herdr-bin",                # SUPER+CTRL+Return
-    "sesh-bin",                 # tmux session picker (prefix+o)
     "bibata-cursor-theme-bin",  # cursor theme set in uwsm/env
     "1password",                # SUPER+SHIFT+/
 ]
