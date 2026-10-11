@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Install the files under system/ in the repo to the same paths under / (e.g.
+# system/etc/smartd.conf -> /etc/smartd.conf) when they differ, then restart
+# the services they belong to. Executable files are installed as 755.
+# Needs sudo, so outside an interactive terminal it fails with a hint instead.
+#
+# Re-runs whenever the repo files or the installed copies change:
+# {{ output "sh" "-c" (printf "cd %q/system && find . -type f | sort | while read -r f; do sha256sum \"$f\" \"/${f#./}\" 2>/dev/null; done; true" .chezmoi.sourceDir) | sha256sum }}
+set -euo pipefail
+
+src={{ .chezmoi.sourceDir | quote }}/system
+
+changed=()
+while IFS= read -r -d '' f; do
+    rel=${f#"$src"/}
+    cmp -s "$f" "/$rel" || changed+=("$rel")
+done < <(find "$src" -type f -print0 | sort -z)
+
+[ ${#changed[@]} -gt 0 ] || exit 0
+
+if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo "system-files: out of date: ${changed[*]}" >&2
+    echo "system-files: run 'chezmoi apply' in a terminal to install them" >&2
+    exit 1
+fi
+
+restart=()
+for rel in "${changed[@]}"; do
+    mode=644
+    [ -x "$src/$rel" ] && mode=755
+    sudo install -D -m "$mode" "$src/$rel" "/$rel"
+    case "$rel" in
+        etc/systemd/resolved.conf.d/*) restart+=(systemd-resolved.service) ;;
+        etc/smartd.conf) restart+=(smartd.service) ;;
+    esac
+done
+
+for unit in $(printf '%s\n' "${restart[@]}" | sort -u); do
+    if systemctl is-active -q "$unit"; then
+        sudo systemctl restart "$unit"
+    fi
+done

@@ -1,0 +1,24 @@
+#!/bin/sh
+# Managed by ~/dotfiles (system/). Called by smartd (as root) with SMARTD_*
+# variables; shows the warning to every logged-in graphical session.
+title="Drive warning: ${SMARTD_DEVICESTRING:-${SMARTD_DEVICE:-unknown device}}"
+body="${SMARTD_MESSAGE:-${SMARTD_FAILTYPE:-SMART problem reported}}"
+
+logger -t smartd-notify "$title: $body"
+
+notify() {
+    notify-send -u critical -a smartd -i drive-harddisk "$title" "$body"
+}
+
+if [ "$(id -u)" -ne 0 ]; then
+    notify
+    exit 0
+fi
+
+for bus in /run/user/*/bus; do
+    [ -S "$bus" ] || continue
+    uid=$(basename "$(dirname "$bus")")
+    user=$(id -nu "$uid" 2>/dev/null) || continue
+    runuser -u "$user" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
+        notify-send -u critical -a smartd -i drive-harddisk "$title" "$body" || true
+done

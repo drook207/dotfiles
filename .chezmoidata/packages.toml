@@ -7,6 +7,7 @@
 pacman = [
     # base tooling
     "chezmoi", "git", "github-cli", "glab", "curl", "jq", "unzip", "pacman-contrib", "fwupd", "snapper",
+    "smartmontools", "libnotify", "btrfs-progs",
     # shell
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
@@ -46,6 +47,8 @@ system = [
     "snapper-timeline.timer",  # hourly /home snapshots (snapper-home script)
     "docker.socket",           # start Docker on demand (no docker group, see binds.lua)
     "linux-modules-cleanup.service",  # kernel-modules-hook: clean old modules after reboot
+    "btrfs-scrub@-.timer",     # monthly btrfs scrub of / (finds silently corrupted data)
+    "smartd.service",          # SSD/HDD health monitoring (config in system/etc/smartd.conf)
 ]
 
 # ufw rules ("<from> <port> <proto>") added when ufw is enabled
