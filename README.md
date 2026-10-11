@@ -54,6 +54,7 @@ chezmoi re-add <file>                  # copy a file changed in ~ back into the 
 | `run_onchange_after_gtk-qt-settings.sh` | GTK/Qt font and cursor settings that live outside `~/.config` files |
 | `run_onchange_after_firefox-theme.sh.tmpl` | Installs Pywalfox into the default Firefox profile |
 | `run_onchange_after_snapper-home.sh.tmpl` | Hourly snapper snapshots of `/home` (10 hourly, 7 daily, 4 weekly) |
+| `run_onchange_after_noctalia-reload.sh.tmpl` | Reloads noctalia after its config or palette changes |
 | `run_onchange_after_docker-localhost.sh.tmpl` | Publishes Docker container ports on 127.0.0.1 by default (Docker bypasses ufw) |
 | `run_onchange_after_battery-charge-limit.sh.tmpl` | Charge battery to 75-80 % where supported (ThinkPads); no-op elsewhere |
 
