@@ -13,6 +13,7 @@ abbr -a grep rg
 abbr -a ls eza
 abbr -a ll eza -al
 abbr -a find fd
+set -gx EDITOR nvim
 starship init fish | source
 zoxide init --cmd cd fish | source
 
