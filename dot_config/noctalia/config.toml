@@ -24,6 +24,7 @@ thickness = 35
     padding = 6.0
 
 [shell]
+font_family = "JetBrainsMono Nerd Font"
 clipboard_image_action_command = "swash --stdin --name \"swash-$(date +'%Y-%m-%d_%H:%M:%S').png\""
 launch_apps_as_systemd_services = true
 polkit_agent = true
@@ -82,9 +83,9 @@ settings_show_advanced = true
 gpu_poll_seconds = 2
 
 [theme]
+builtin = "Kanagawa"
 mode = "dark"
-source = "wallpaper"
-wallpaper_scheme = "m3-tonal-spot"
+source = "builtin"
 
     [theme.templates]
     builtin_ids = [ "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt", "alacritty" ]

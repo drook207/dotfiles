@@ -7,8 +7,9 @@ hl.config({
         no_donation_nag = true,
     },
     misc = {
+        font_family = "JetBrainsMono Nerd Font",
         col = {
-            splash = CACHYLGREEN,
+            splash = KANAGAWA_BLUE,
         },
         middle_click_paste = false,
         enable_swallow = true,

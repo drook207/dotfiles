@@ -1,11 +1,7 @@
--- Cachy colors
+-- Kanagawa Wave colors (https://github.com/rebelot/kanagawa.nvim)
 
-CACHYLGREEN = "rgba(82dcccff)"
-CACHYMGREEN = "rgba(00aa84ff)"
-CACHYDGREEN = "rgba(007d6fff)"
-CACHYLBLUE  = "rgba(01ccffff)"
-CACHYMBLUE  = "rgba(182545ff)"
-CACHYDBLUE  = "rgba(111826ff)"
-CACHYWHITE  = "rgba(ffffffff)"
-CACHYGREY   = "rgba(ddddddff)"
-CACHYGRAY   = "rgba(798bb2ff)"
+KANAGAWA_BLUE   = "rgba(7e9cd8ff)" -- crystalBlue
+KANAGAWA_VIOLET = "rgba(957fb8ff)" -- oniViolet
+KANAGAWA_AQUA   = "rgba(7aa89fff)" -- waveAqua2
+KANAGAWA_YELLOW = "rgba(c0a36eff)" -- boatYellow2
+KANAGAWA_GRAY   = "rgba(54546dff)" -- sumiInk6
