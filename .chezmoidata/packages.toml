@@ -17,7 +17,6 @@ pacman = [
 ]
 aur = [
     "herdr-bin",                # SUPER+CTRL+Return
-    "bibata-cursor-theme-bin",  # cursor theme set in uwsm/env
     "1password",                # SUPER+SHIFT+/
 ]
 

@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-# Apply JetBrains Mono Nerd Font to GTK and Qt (qt6ct), whose settings live
-# outside the dotfiles. Re-runs whenever this script changes.
+# Apply JetBrains Mono Nerd Font to GTK and Qt (qt6ct) and the default Adwaita
+# cursor to GTK, whose settings live outside the dotfiles. Re-runs whenever
+# this script changes.
 set -euo pipefail
 
 font="JetBrainsMono Nerd Font"
 size=11
+cursor="Adwaita"
 
 if command -v gsettings >/dev/null; then
     gsettings set org.gnome.desktop.interface font-name "$font $size"
     gsettings set org.gnome.desktop.interface document-font-name "$font $size"
     gsettings set org.gnome.desktop.interface monospace-font-name "$font $size"
+    gsettings set org.gnome.desktop.interface cursor-theme "$cursor"
 fi
 
 gtk3="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0/settings.ini"
@@ -19,6 +22,7 @@ if [ -f "$gtk3" ]; then
     else
         sed -i "/^\[Settings\]/a gtk-font-name=$font $size" "$gtk3"
     fi
+    sed -i "s/^gtk-cursor-theme-name=.*/gtk-cursor-theme-name=$cursor/" "$gtk3"
 fi
 
 qt6ct="${XDG_CONFIG_HOME:-$HOME/.config}/qt6ct/qt6ct.conf"
