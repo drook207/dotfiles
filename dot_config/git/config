@@ -35,3 +35,8 @@
 [credential "https://gist.github.com"]
 	helper =
 	helper = !/usr/bin/gh auth git-credential
+
+# GitLab logins via `glab auth login`
+[credential "https://gitlab.com"]
+	helper =
+	helper = !/usr/bin/glab auth git-credential
