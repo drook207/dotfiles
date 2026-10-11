@@ -23,6 +23,13 @@ thickness = 35
     opacity = 1.0
     padding = 6.0
 
+[lockscreen]
+# Kanagawa: castle wallpaper, lightly blurred, washed with the theme's sumiInk surface color
+wallpaper = "~/.local/share/wallpapers/japanese-castle-pixel-digital-art.jpg"
+blurred_desktop = false
+blur_intensity = 0.3
+tint_intensity = 0.45
+
 [shell]
 font_family = "JetBrainsMono Nerd Font"
 clipboard_image_action_command = "swash --stdin --name \"swash-$(date +'%Y-%m-%d_%H:%M:%S').png\""
