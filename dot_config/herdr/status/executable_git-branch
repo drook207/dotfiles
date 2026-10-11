@@ -1,0 +1,7 @@
+#!/bin/sh
+# herdr status: branch (or short commit) of the focused pane's Git repo; prints
+# nothing outside a repo, which hides the entry.
+cd "${HERDR_ACTIVE_PANE_CWD:-$PWD}" 2>/dev/null || exit 0
+branch=$(git branch --show-current 2>/dev/null) || exit 0
+[ -n "$branch" ] || branch=$(git rev-parse --short HEAD 2>/dev/null) || exit 0
+[ -n "$branch" ] && printf ' %s\n' "$branch"

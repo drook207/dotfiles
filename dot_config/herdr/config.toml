@@ -104,8 +104,17 @@ prompt_new_tab_name = false
 # set -g mouse on
 mouse_capture = true
 
-# status-right had the zoom flag followed by #h
-tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
+# Status line at the bottom like tmux: zoom flag, Git branch of the focused
+# pane, CPU, RAM and time (scripts in ~/.config/herdr/status/)
+tab_bar_position = "bottom"
+tab_bar_right_separator = " · "
+tab_bar_right = [
+    { type = "zoom" },
+    { type = "command", command = "~/.config/herdr/status/git-branch", interval_seconds = 2, timeout_seconds = 2 },
+    { type = "command", command = "~/.config/herdr/status/cpu", interval_seconds = 3, timeout_seconds = 2 },
+    { type = "command", command = "~/.config/herdr/status/mem", interval_seconds = 5, timeout_seconds = 2 },
+    { type = "datetime", format = "%H:%M" },
+]
 
 # set -g set-titles on / set -g set-titles-string '#h:#W', where tmux's #W was
 # the basename of the pane cwd. This is what Hyprland shows in the group bar,
