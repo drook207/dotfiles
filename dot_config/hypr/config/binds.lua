@@ -1,168 +1,261 @@
-local mainMod = "SUPER"
+-- Keybindings following Omarchy's defaults (basecamp/omarchy v4.0.4,
+-- default/hypr/bindings/*.lua), ported to CachyOS + Noctalia.
+-- Omarchy-specific scripts are replaced by Noctalia IPC or plain commands;
+-- bindings whose only implementation is an omarchy-* script are left out.
+
 local noctCall = "noctalia msg "
 local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empty (e.g. "")
 
--- AZERTY fix: the number-row keys emit symbols (& é " ' ...) without Shift, so
--- binding to the digit characters fails. Bind by physical keycode instead.
+-- bind(keys, description, action, opts)
+-- action: a dispatcher, a Lua function, or a shell command string (launched via UWSM)
+local function bind(keys, description, action, opts)
+    opts = opts or {}
+    opts.description = description
+    if type(action) == "string" then
+        action = hl.dsp.exec_cmd(launchPrefix .. action)
+    end
+    return hl.bind(keys, action, opts)
+end
+
+local function noct(cmd)
+    return hl.dsp.exec_cmd(noctCall .. cmd)
+end
+
+local function webapp(url)
+    return BROWSER .. " --new-window " .. url
+end
+
+-- Bind by physical keycode so the number row works on any layout.
 -- Digit d -> evdev keycode: 1..9 => 10..18, 0 => 19
 local function digitCode(d)
     return "code:" .. (d == 0 and 19 or (9 + d))
 end
 
----------------------------
----- WINDOW MANAGEMENT ----
----------------------------
+---------------------
+---- APPLICATIONS ----
+---------------------
 
--- Window manipulation
-hl.bind(mainMod .. " + Escape",      hl.dsp.exec_cmd("hyprctl kill"))
-hl.bind(mainMod .. " + Q",           hl.dsp.window.close())
-hl.bind(mainMod .. " + ALT + Space", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + D",           hl.dsp.window.fullscreen({ mode = 1 }))
-hl.bind(mainMod .. " + F",           hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + J",           hl.dsp.layout("togglesplit"))
+bind("SUPER + RETURN",               "Terminal",          TERMINAL)
+bind("SUPER + ALT + RETURN",         "Tmux",              TERMINAL .. " -e tmux new-session -A -s Work")
+bind("SUPER + SHIFT + RETURN",       "Browser",           BROWSER)
+bind("SUPER + SHIFT + B",            "Browser",           BROWSER)
+bind("SUPER + SHIFT + ALT + B",      "Browser (private)", BROWSER .. " --private-window")
+bind("SUPER + SHIFT + F",            "File manager",      FILE_MANAGER)
+bind("SUPER + SHIFT + N",            "Editor",            EDITOR)
+bind("SUPER + SHIFT + SLASH",        "Passwords",         "1password")
 
--- Change focus
-hl.bind(mainMod .. " + Left",  hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + Right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + Up",    hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + Down",  hl.dsp.focus({ direction = "down" }))
-hl.bind("ALT + Tab",           hl.dsp.window.cycle_next())
-hl.bind(mainMod .. " + Tab",   hl.dsp.exec_cmd(noctCall .. "window-switcher"))
+bind("SUPER + SHIFT + A",            "ChatGPT",           webapp("https://chatgpt.com"))
+bind("SUPER + SHIFT + ALT + A",      "Grok",              webapp("https://grok.com"))
+bind("SUPER + SHIFT + C",            "Calendar",          webapp("https://app.hey.com/calendar/weeks/"))
+bind("SUPER + SHIFT + E",            "Email",             webapp("https://app.hey.com"))
+bind("SUPER + SHIFT + Y",            "YouTube",           webapp("https://youtube.com/"))
+bind("SUPER + SHIFT + ALT + G",      "WhatsApp",          webapp("https://web.whatsapp.com/"))
+bind("SUPER + SHIFT + CTRL + G",     "Google Messages",   webapp("https://messages.google.com/web/conversations"))
+bind("SUPER + SHIFT + P",            "Google Photos",     webapp("https://photos.google.com/"))
+bind("SUPER + SHIFT + S",            "Google Maps",       webapp("https://maps.google.com/"))
+bind("SUPER + SHIFT + X",            "X",                 webapp("https://x.com/"))
+bind("SUPER + SHIFT + ALT + X",      "X Post",            webapp("https://x.com/compose/post"))
 
--- Move active window around workspaces & monitors
-hl.bind(mainMod .. " + SHIFT + Up",                   hl.dsp.window.move({ direction = "u" }))
-hl.bind(mainMod .. " + SHIFT + Right",                hl.dsp.window.move({ direction = "r" }))
-hl.bind(mainMod .. " + SHIFT + Left",                 hl.dsp.window.move({ direction = "l" }))
-hl.bind(mainMod .. " + SHIFT + Down",                 hl.dsp.window.move({ direction = "d" }))
-hl.bind(mainMod .. " + SHIFT + " .. digitCode(1),     hl.dsp.window.move({ monitor = MONITOR1 }))
-hl.bind(mainMod .. " + SHIFT + " .. digitCode(2),     hl.dsp.window.move({ monitor = MONITOR2 }))
-hl.bind(mainMod .. " + SHIFT + " .. digitCode(3),     hl.dsp.window.move({ monitor = MONITOR3 }))
-hl.bind(mainMod .. " + SHIFT + mouse_up",             hl.dsp.window.move({ monitor   = "-1" }))
-hl.bind(mainMod .. " + SHIFT + mouse_down",           hl.dsp.window.move({ monitor   = "+1" }))
-hl.bind(mainMod .. " + CONTROL + SHIFT + Right",      hl.dsp.window.move({ workspace = "m+1" }))
-hl.bind(mainMod .. " + CONTROL + SHIFT + Left",       hl.dsp.window.move({ workspace = "m-1" }))
-hl.bind(mainMod .. " + CONTROL + SHIFT + mouse_up",   hl.dsp.window.move({ workspace = "m-1" }))
-hl.bind(mainMod .. " + CONTROL + SHIFT + mouse_down", hl.dsp.window.move({ workspace = "m+1" }))
-for i = 1, NUM_WPM do
-    local key = i % 10
-    hl.bind(mainMod .. " + SHIFT + CONTROL + " .. digitCode(key), hl.dsp.window.move({ workspace = "m~" .. i }))
+----------------
+---- TILING ----
+----------------
+
+bind("SUPER + W",        "Close window",                  hl.dsp.window.close())
+bind("SUPER + J",        "Toggle window split",           hl.dsp.layout("togglesplit"))
+bind("SUPER + P",        "Pseudo window",                 hl.dsp.window.pseudo())
+bind("SUPER + T",        "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
+bind("SUPER + F",        "Full screen",                   hl.dsp.window.fullscreen({ mode = "fullscreen" }))
+bind("SUPER + ALT + F",  "Full width",                    hl.dsp.window.fullscreen({ mode = "maximized" }))
+bind("SUPER + O",        "Pop window out (float & pin)",  function()
+    hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
+    hl.dispatch(hl.dsp.window.pin())
+end)
+
+bind("SUPER + LEFT",  "Focus on left window",  hl.dsp.focus({ direction = "l" }))
+bind("SUPER + RIGHT", "Focus on right window", hl.dsp.focus({ direction = "r" }))
+bind("SUPER + UP",    "Focus on above window", hl.dsp.focus({ direction = "u" }))
+bind("SUPER + DOWN",  "Focus on below window", hl.dsp.focus({ direction = "d" }))
+
+for workspace = 1, 10 do
+    local key = digitCode(workspace % 10)
+    bind("SUPER + " .. key,               "Switch to workspace " .. workspace,         hl.dsp.focus({ workspace = tostring(workspace) }))
+    bind("SUPER + SHIFT + " .. key,       "Move window to workspace " .. workspace,    hl.dsp.window.move({ workspace = tostring(workspace) }))
+    bind("SUPER + SHIFT + ALT + " .. key, "Move window silently to workspace " .. workspace, hl.dsp.window.move({ workspace = tostring(workspace), follow = false }))
 end
-for i = 1, NUM_WPM do
-    local key = i % 10
-    hl.bind(mainMod .. " + SHIFT + ALT + " .. digitCode(key), hl.dsp.window.move({ workspace = "m~" .. i, follow = false }))
+
+bind("SUPER + S",       "Toggle scratchpad",         hl.dsp.workspace.toggle_special("scratchpad"))
+bind("SUPER + ALT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
+
+bind("SUPER + TAB",          "Next workspace",     hl.dsp.focus({ workspace = "e+1" }))
+bind("SUPER + SHIFT + TAB",  "Previous workspace", hl.dsp.focus({ workspace = "e-1" }))
+bind("SUPER + CTRL + TAB",   "Former workspace",   hl.dsp.focus({ workspace = "previous" }))
+
+bind("SUPER + SHIFT + ALT + LEFT",  "Move workspace to left monitor",  hl.dsp.workspace.move({ monitor = "l" }))
+bind("SUPER + SHIFT + ALT + RIGHT", "Move workspace to right monitor", hl.dsp.workspace.move({ monitor = "r" }))
+bind("SUPER + SHIFT + ALT + UP",    "Move workspace to up monitor",    hl.dsp.workspace.move({ monitor = "u" }))
+bind("SUPER + SHIFT + ALT + DOWN",  "Move workspace to down monitor",  hl.dsp.workspace.move({ monitor = "d" }))
+
+bind("SUPER + SHIFT + LEFT",  "Swap window to the left",  hl.dsp.window.swap({ direction = "l" }))
+bind("SUPER + SHIFT + RIGHT", "Swap window to the right", hl.dsp.window.swap({ direction = "r" }))
+bind("SUPER + SHIFT + UP",    "Swap window up",           hl.dsp.window.swap({ direction = "u" }))
+bind("SUPER + SHIFT + DOWN",  "Swap window down",         hl.dsp.window.swap({ direction = "d" }))
+
+bind("ALT + TAB",         "Focus on next window",        hl.dsp.window.cycle_next())
+bind("ALT + SHIFT + TAB", "Focus on previous window",    hl.dsp.window.cycle_next({ next = false }))
+bind("ALT + TAB",         "Reveal active window on top", hl.dsp.window.bring_to_top())
+bind("ALT + SHIFT + TAB", "Reveal active window on top", hl.dsp.window.bring_to_top())
+
+bind("CTRL + ALT + TAB",         "Focus on next monitor",     hl.dsp.focus({ monitor = "+1" }))
+bind("CTRL + ALT + SHIFT + TAB", "Focus on previous monitor", hl.dsp.focus({ monitor = "-1" }))
+
+-- code:20 / code:21 are the two keys right of the number row (- and = on US)
+bind("SUPER + code:20",         "Expand window left", hl.dsp.window.resize({ x = -100, y = 0, relative = true }))
+bind("SUPER + code:21",         "Shrink window left", hl.dsp.window.resize({ x = 100, y = 0, relative = true }))
+bind("SUPER + SHIFT + code:20", "Shrink window up",   hl.dsp.window.resize({ x = 0, y = -100, relative = true }))
+bind("SUPER + SHIFT + code:21", "Expand window down", hl.dsp.window.resize({ x = 0, y = 100, relative = true }))
+
+bind("SUPER + ALT + code:20",         "Expand window left a little", hl.dsp.window.resize({ x = -25, y = 0, relative = true }))
+bind("SUPER + ALT + code:21",         "Shrink window left a little", hl.dsp.window.resize({ x = 25, y = 0, relative = true }))
+bind("SUPER + SHIFT + ALT + code:20", "Shrink window up a little",   hl.dsp.window.resize({ x = 0, y = -25, relative = true }))
+bind("SUPER + SHIFT + ALT + code:21", "Expand window down a little", hl.dsp.window.resize({ x = 0, y = 25, relative = true }))
+
+bind("SUPER + CTRL + code:20",         "Expand window left a lot", hl.dsp.window.resize({ x = -300, y = 0, relative = true }))
+bind("SUPER + CTRL + code:21",         "Shrink window left a lot", hl.dsp.window.resize({ x = 300, y = 0, relative = true }))
+bind("SUPER + CTRL + SHIFT + code:20", "Shrink window up a lot",   hl.dsp.window.resize({ x = 0, y = -300, relative = true }))
+bind("SUPER + CTRL + SHIFT + code:21", "Expand window down a lot", hl.dsp.window.resize({ x = 0, y = 300, relative = true }))
+
+bind("SUPER + mouse_down", "Scroll active workspace forward",  hl.dsp.focus({ workspace = "e+1" }))
+bind("SUPER + mouse_up",   "Scroll active workspace backward", hl.dsp.focus({ workspace = "e-1" }))
+
+bind("SUPER + mouse:272", "Move window",   hl.dsp.window.drag())
+bind("SUPER + mouse:273", "Resize window", hl.dsp.window.resize())
+
+bind("SUPER + G",       "Toggle window grouping",         hl.dsp.group.toggle())
+bind("SUPER + ALT + G", "Move active window out of group", hl.dsp.window.move({ out_of_group = true }))
+
+bind("SUPER + ALT + LEFT",  "Move window to group on left",   hl.dsp.window.move({ into_group = "l" }))
+bind("SUPER + ALT + RIGHT", "Move window to group on right",  hl.dsp.window.move({ into_group = "r" }))
+bind("SUPER + ALT + UP",    "Move window to group on top",    hl.dsp.window.move({ into_group = "u" }))
+bind("SUPER + ALT + DOWN",  "Move window to group on bottom", hl.dsp.window.move({ into_group = "d" }))
+
+bind("SUPER + ALT + TAB",         "Next window in group",           hl.dsp.group.next())
+bind("SUPER + ALT + SHIFT + TAB", "Previous window in group",       hl.dsp.group.prev())
+bind("SUPER + CTRL + LEFT",       "Move grouped window focus left",  hl.dsp.group.prev())
+bind("SUPER + CTRL + RIGHT",      "Move grouped window focus right", hl.dsp.group.next())
+bind("SUPER + ALT + mouse_down",  "Next window in group",           hl.dsp.group.next())
+bind("SUPER + ALT + mouse_up",    "Previous window in group",       hl.dsp.group.prev())
+
+for index = 1, 5 do
+    bind("SUPER + ALT + " .. digitCode(index), "Switch to group window " .. index, hl.dsp.group.active({ index = index }))
 end
-
--- Move & Resize with mouse
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag())
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize())
-
--- Zoom
-local function zoomfunction(value)
-    local zoomvalue = hl.get_config("cursor:zoom_factor")
-    if (zoomvalue + value) > 3.0 then
-        hl.config({ cursor = { zoom_factor = 3.0 } })
-    elseif (zoomvalue + value) < 1.0 then
-        hl.config({ cursor = { zoom_factor = 1.0 } })
-    else
-        hl.config({ cursor = { zoom_factor = zoomvalue + value } })
-    end
-end
-hl.bind(mainMod .. " + Minus", function() zoomfunction(-0.3) end, { repeating = true})
-hl.bind(mainMod .. " + Plus", function() zoomfunction(0.3) end, { repeating = true })
-
---# Zoom with keypad
-hl.bind(mainMod .. " + code:82", function() zoomfunction(-0.3) end, { repeating = true })
-hl.bind(mainMod .. " + code:86", function() zoomfunction(0.3) end, { repeating = true })
-
-
-------------------
----- LAUNCHER ----
-------------------
-
-hl.bind(mainMod .. " + Return",     hl.dsp.exec_cmd(launchPrefix .. TERMINAL))
-hl.bind(mainMod .. " + E",          hl.dsp.exec_cmd(launchPrefix .. FILE_MANAGER))
-hl.bind(mainMod .. " + T",          hl.dsp.exec_cmd(launchPrefix .. EDITOR))
-hl.bind(mainMod .. " + C",          hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
-hl.bind("XF86Calculator",           hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
-hl.bind(mainMod .. " + W",          hl.dsp.exec_cmd(launchPrefix .. BROWSER))
-hl.bind("CONTROL + SHIFT + Escape", hl.dsp.exec_cmd(launchPrefix .. TERMINAL .. " -e btop"))
-hl.bind(mainMod .. " + Z",          hl.dsp.exec_cmd(noctCall .. "settings-toggle"))
-hl.bind(mainMod .. " + X",          hl.dsp.exec_cmd(noctCall .. "panel-toggle control-center"))
-hl.bind(mainMod .. " + Space",      hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher"))
-hl.bind(mainMod .. " + period",     hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher /emo"))
-hl.bind(mainMod .. " + L",          hl.dsp.exec_cmd(noctCall .. "session lock"))
-hl.bind(mainMod .. " + ALT + C",    hl.dsp.exec_cmd(noctCall .. "panel-toggle session"))
-
----------------------------
----- HARDWARE CONTROLS ----
----------------------------
-
--- Audio
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(noctCall .. "volume-up"),   { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(noctCall .. "volume-down"), { locked = true, repeating = true })
-hl.bind("XF86AudioMute",        hl.dsp.exec_cmd(noctCall .. "volume-mute"), { locked = true })
-hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd(noctCall .. "mic-mute"),    { locked = true })
-
--- Media
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd(noctCall .. "media toggle"),   { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd(noctCall .. "media toggle"),   { locked = true })
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd(noctCall .. "media next"),     { locked = true })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd(noctCall .. "media previous"), { locked = true })
-
--- Brightness
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(noctCall .. "brightness-up"),   { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(noctCall .. "brightness-down"), { locked = true, repeating = true })
 
 -------------------
 ---- UTILITIES ----
 -------------------
 
--- Screen Capture
-hl.bind(mainMod .. " + P",     hl.dsp.exec_cmd("hyprpicker -a -n"))
-hl.bind("Print",               hl.dsp.exec_cmd(noctCall .. "screenshot-region"))
-hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd(noctCall .. "screenshot-fullscreen"))
+-- Menus (Omarchy menu -> Noctalia launcher/session panels)
+bind("SUPER + SPACE",          "Launcher",    noct("panel-toggle launcher"))
+bind("SUPER + ALT + SPACE",    "Apps menu",   noct("panel-toggle launcher"))
+bind("SUPER + CTRL + E",       "Emojis",      noct("panel-toggle launcher /emo"))
+bind("SUPER + ESCAPE",         "System menu", noct("panel-toggle session"))
+bind("XF86PowerOff",           "Power menu",  noct("panel-toggle session"), { locked = true })
+bind("SUPER + CTRL + Q",       "Calculator",  CALCULATOR)
+bind("XF86Calculator",         "Calculator",  CALCULATOR)
 
--- Theming and Wallpaper
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd(noctCall .. "panel-toggle wallpaper"))
-
--- Clipboard
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(noctCall .. "panel-toggle clipboard"))
+bind("SUPER + SHIFT + SPACE",        "Toggle top bar",       noct("bar-toggle"))
+bind("SUPER + CTRL + SPACE",         "Background switcher",  noct("panel-toggle wallpaper"))
+bind("SUPER + SHIFT + CTRL + SPACE", "Theme / settings",     noct("settings-toggle"))
 
 -- Notifications
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(noctCall .. "panel-toggle control-center notifications"))
+bind("SUPER + comma",               "Dismiss notifications",          noct("notification-clear-active"))
+bind("SUPER + SHIFT + comma",       "Dismiss all notifications",      noct("notification-clear-active"))
+bind("SUPER + CTRL + comma",        "Toggle silencing notifications", noct("notification-dnd-toggle"))
+bind("SUPER + ALT + comma",         "Invoke last notification",       noct("notification-invoke-latest"))
+bind("SUPER + SHIFT + ALT + comma", "Open notification history",      noct("panel-toggle control-center notifications"))
 
--------------------------------
----- WORKSPACES & MONITORS ----
--------------------------------
+bind("SUPER + CTRL + I", "Toggle locking on idle", noct("caffeine-toggle"))
+bind("SUPER + CTRL + N", "Toggle nightlight",      noct("nightlight-force-toggle"))
 
--- Focus on monitors
-hl.bind(mainMod .. " + " .. digitCode(1), hl.dsp.focus({ monitor = MONITOR1 }))
-hl.bind(mainMod .. " + " .. digitCode(2), hl.dsp.focus({ monitor = MONITOR2 }))
-hl.bind(mainMod .. " + " .. digitCode(3), hl.dsp.focus({ monitor = MONITOR3 }))
+-- Capture
+bind("PRINT",         "Screenshot",   noct("screenshot-region"))
+bind("SUPER + PRINT", "Color picker", hl.dsp.exec_cmd("pkill hyprpicker || hyprpicker -a"))
 
--- Focus on workspace number
--- Absolute
-for i = 1, NUM_WPM do
-    local key = i % 10
-    hl.bind(mainMod .. " + ALT + " .. digitCode(key), hl.dsp.focus({ workspace = i }))
+-- Control center panels
+bind("SUPER + CTRL + A",       "Audio",     noct("panel-toggle control-center audio"))
+bind("SUPER + CTRL + B",       "Bluetooth", noct("panel-toggle control-center bluetooth"))
+bind("SUPER + CTRL + ALT + D", "Calendar",  noct("panel-toggle control-center calendar"))
+bind("SUPER + CTRL + W",       "Network",   noct("panel-toggle control-center network"))
+bind("SUPER + CTRL + P",       "Power",     noct("panel-toggle control-center power"))
+bind("SUPER + CTRL + T",       "Activity",  TERMINAL .. " -e btop")
+
+-- Zoom
+bind("SUPER + CTRL + Z", "Zoom in", function()
+    local zoom = hl.get_config("cursor:zoom_factor") or 1
+    hl.config({ cursor = { zoom_factor = zoom + 1 } })
+end)
+bind("SUPER + CTRL + ALT + Z", "Reset zoom", function()
+    hl.config({ cursor = { zoom_factor = 1 } })
+end)
+
+bind("SUPER + CTRL + L", "Lock system", noct("session lock"))
+
+---------------
+---- MEDIA ----
+---------------
+
+bind("XF86AudioRaiseVolume",          "Volume up",                 noct("volume-up"),                 { locked = true, repeating = true })
+bind("XF86AudioLowerVolume",          "Volume down",               noct("volume-down"),               { locked = true, repeating = true })
+bind("XF86AudioMute",                 "Mute",                      noct("volume-mute"),               { locked = true })
+bind("XF86AudioMicMute",              "Mute microphone",           noct("mic-mute"),                  { locked = true })
+bind("XF86MonBrightnessUp",           "Brightness up",             noct("brightness-up"),             { locked = true, repeating = true })
+bind("XF86MonBrightnessDown",         "Brightness down",           noct("brightness-down"),           { locked = true, repeating = true })
+bind("SHIFT + XF86MonBrightnessUp",   "Brightness maximum",        noct("brightness-set 100"),        { locked = true })
+bind("SHIFT + XF86MonBrightnessDown", "Brightness minimum",        noct("brightness-set 1"),          { locked = true })
+bind("XF86KbdBrightnessUp",           "Keyboard brightness up",    noct("keyboard-backlight-up"),     { locked = true, repeating = true })
+bind("XF86KbdBrightnessDown",         "Keyboard brightness down",  noct("keyboard-backlight-down"),   { locked = true, repeating = true })
+bind("XF86KbdLightOnOff",             "Keyboard backlight toggle", noct("keyboard-backlight-toggle"), { locked = true })
+
+bind("XF86AudioNext",                "Next track",     noct("media next"),     { locked = true })
+bind("ALT + XF86AudioPlay",          "Next track",     noct("media next"),     { locked = true })
+bind("XF86AudioPause",               "Pause",          noct("media toggle"),   { locked = true })
+bind("XF86AudioPlay",                "Play",           noct("media toggle"),   { locked = true })
+bind("XF86AudioPrev",                "Previous track", noct("media previous"), { locked = true })
+bind("ALT + SHIFT + XF86AudioPlay",  "Previous track", noct("media previous"), { locked = true })
+bind("XF86Eject",                    "Eject media",    hl.dsp.exec_cmd("eject"), { locked = true })
+
+-------------------
+---- CLIPBOARD ----
+-------------------
+
+-- Universal copy/paste: send Ctrl+C/V to normal windows and the terminal
+-- equivalents (Ctrl/Shift+Insert) to terminals. The down/up split works around
+-- send_shortcut sometimes leaving synthetic key state stuck.
+local terminalClasses = {
+    kitty = true, ["com.mitchellh.ghostty"] = true, Alacritty = true,
+    ["org.kde.konsole"] = true, foot = true,
+}
+
+local function send_shortcut_once(mods, key)
+    return function()
+        hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+        hl.timer(function()
+            hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+        end, { timeout = 50, type = "oneshot" })
+    end
 end
--- Relative
-for i = 1, NUM_WPM do
-    local key = i % 10
-    hl.bind(mainMod .. " + CONTROL + " .. digitCode(key), hl.dsp.focus({ workspace = "m~" .. i }))
+
+local function universal_clipboard_shortcut(default_mods, default_key, terminal_mods, terminal_key)
+    return function()
+        local window = hl.get_active_window()
+        if window and terminalClasses[window.class] then
+            send_shortcut_once(terminal_mods, terminal_key)()
+        else
+            send_shortcut_once(default_mods, default_key)()
+        end
+    end
 end
 
--- Move to adjacent workspaces and next empty on a given monitor
-hl.bind(mainMod .. " + CONTROL + Right",       hl.dsp.focus({ workspace = "m+1" }))
-hl.bind(mainMod .. " + CONTROL + Left",        hl.dsp.focus({ workspace = "m-1" }))
-hl.bind(mainMod .. " + CONTROL + Down",        hl.dsp.focus({ workspace = "emptym" }))
-
--- Scroll through existing workspaces & monitors
-hl.bind(mainMod .. " + mouse_down",           hl.dsp.focus({ workspace = "m-1" }))
-hl.bind(mainMod .. " + mouse_up",             hl.dsp.focus({ workspace = "m+1" }))
-hl.bind(mainMod .. " + CONTROL + mouse_up",   hl.dsp.focus({ workspace = "m-1" }))
-hl.bind(mainMod .. " + CONTROL + mouse_down", hl.dsp.focus({ workspace = "m+1" }))
-
--- Special workspace (scratchpad)
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special" }))
-hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special())
+bind("SUPER + C",        "Universal copy",    universal_clipboard_shortcut("CTRL", "C", "CTRL", "Insert"))
+bind("SUPER + V",        "Universal paste",   universal_clipboard_shortcut("CTRL", "V", "SHIFT", "Insert"))
+bind("SUPER + X",        "Universal cut",     send_shortcut_once("CTRL", "X"))
+bind("SUPER + CTRL + V", "Clipboard manager", noct("panel-toggle clipboard"))
