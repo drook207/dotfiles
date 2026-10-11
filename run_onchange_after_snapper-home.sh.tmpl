@@ -5,7 +5,7 @@
 # Needs sudo, so outside an interactive terminal it fails with a hint instead.
 #
 # Re-runs whenever the current home config differs:
-# {{ output "sh" "-c" "cat /etc/snapper/configs/home 2>/dev/null || true" | sha256sum }}
+# {{ output "sh" "-c" "snapper --csvout -c home get-config 2>/dev/null || true" | sha256sum }}
 set -euo pipefail
 
 command -v snapper >/dev/null || exit 0
@@ -24,15 +24,13 @@ settings=(
     SYNC_ACL=yes
 )
 
-config=/etc/snapper/configs/home
+# The config file is root-only; once ALLOW_USERS includes us, get-config works
+# without sudo. If the config is missing (or we can't read it) it's empty.
+current=$(snapper --csvout -c home get-config 2>/dev/null || true)
 up_to_date=true
-if [ -f "$config" ]; then
-    for s in "${settings[@]}"; do
-        grep -qx "${s%%=*}=\"${s#*=}\"" "$config" || up_to_date=false
-    done
-else
-    up_to_date=false
-fi
+for s in "${settings[@]}"; do
+    grep -qx "${s%%=*},${s#*=}" <<<"$current" || up_to_date=false
+done
 $up_to_date && exit 0
 
 if [ ! -t 0 ] || [ ! -t 1 ]; then
@@ -40,7 +38,7 @@ if [ ! -t 0 ] || [ ! -t 1 ]; then
     exit 1
 fi
 
-if [ ! -f "$config" ]; then
+if [ ! -f /etc/snapper/configs/home ]; then
     sudo snapper -c home create-config /home
 fi
 sudo snapper -c home set-config "${settings[@]}"
