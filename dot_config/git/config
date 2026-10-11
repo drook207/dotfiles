@@ -1,6 +1,8 @@
 [user]
 	name = Pascal Berndt
 	email = drook207@gmail.com
+	# SSH key "GitHub" in 1Password, used for signing
+	signingKey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGfXzR4v21LooDWWO6JCNDmTlOUsUyvobv7HeuD8dlaR
 
 [init]
 	defaultBranch = main
@@ -27,6 +29,17 @@
 
 [status]
 	showUntrackedFiles = all
+
+# Sign commits and tags with the SSH key via 1Password (it asks to approve)
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /opt/1Password/op-ssh-sign
+	allowedSignersFile = ~/.config/git/allowed_signers
+[commit]
+	gpgSign = true
+[tag]
+	gpgSign = true
 
 # GitHub logins via `gh auth login` (written by `gh auth setup-git`)
 [credential "https://github.com"]
