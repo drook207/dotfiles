@@ -90,6 +90,9 @@ source = "builtin"
     [theme.templates]
     builtin_ids = [ "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt", "alacritty" ]
 
+[wallpaper.default]
+path = "~/.local/share/wallpapers/japanese-castle-pixel-digital-art.jpg"
+
 [widget.clock]
 color = "secondary"
 format = "{:%H:%M %A %m/%d/%y}"
