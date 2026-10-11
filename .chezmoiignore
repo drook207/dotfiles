@@ -6,3 +6,6 @@ README.md
 
 # system files, installed under / by run_onchange_after_10-system-files.sh.tmpl
 system
+
+# bootstrap script, run via curl (see README)
+install.sh

@@ -15,23 +15,19 @@ Everything is themed with **Kanagawa Paper Ink** and uses **JetBrains Mono Nerd 
 
 ## New machine
 
-Assumes CachyOS: `noctalia` and `swash` come from the CachyOS repos.
+On a fresh CachyOS install (`noctalia` and `swash` come from the CachyOS repos),
+in a terminal:
 
 ```sh
-sudo pacman -S chezmoi
-chezmoi init --apply https://github.com/drook207/dotfiles.git
+curl -fsSL https://raw.githubusercontent.com/drook207/dotfiles/main/install.sh | bash
 ```
 
-Run it in a terminal: installing packages needs sudo, and paru asks you to
-review AUR build scripts. Then log out and back in.
-
-To keep the repo in `~/dotfiles` instead of `~/.local/share/chezmoi`, clone it
-there and create `~/.config/chezmoi/chezmoi.toml` with `sourceDir = "~/dotfiles"`
-before running `chezmoi apply`.
-
-**Firefox:** start it, close it, and start it once more. Firefox installs the
-Pywalfox extension on the first start but only runs it after the second, then
-noctalia pushes the colors.
+`install.sh` installs git and chezmoi, clones this repo to `~/dotfiles`, applies
+everything (packages via pacman/paru, configs, system files; it asks for sudo,
+and paru for reviewing AUR build scripts), then fetches the age key from
+1Password (document "chezmoi age key") to decrypt the secrets. It's safe to run
+again. Afterwards: log out and back in, start Firefox twice (installs
+Pywalfox), and run `gh auth login` / `glab auth login`.
 
 ## Day to day
 
