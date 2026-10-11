@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Select a screen region, recognise its text (German + English) and copy it to
+# the clipboard (SUPER+CTRL+PRINT). Like Omarchy's omarchy-capture-text.
+set -euo pipefail
+
+region=$(slurp) || exit 0
+text=$(grim -g "$region" - | tesseract - - -l deu+eng 2>/dev/null)
+
+if [ -z "${text//[[:space:]]/}" ]; then
+    notify-send -a "Text capture" "No text found"
+    exit 0
+fi
+printf '%s' "$text" | wl-copy
+notify-send -a "Text capture" "Text copied" "$(printf '%s' "$text" | head -c 120)"

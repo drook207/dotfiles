@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Toggle a screen recording of the focused monitor with system audio (ALT+PRINT).
+# Slimmed-down version of Omarchy's omarchy-capture-screenrecording.
+set -euo pipefail
+
+[ -f ~/.config/user-dirs.dirs ] && source ~/.config/user-dirs.dirs
+dir="${XDG_VIDEOS_DIR:-$HOME/Videos}"
+
+if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+    # SIGINT makes gpu-screen-recorder finish and save the file properly
+    pkill -SIGINT -f "^gpu-screen-recorder"
+    for _ in $(seq 50); do
+        pgrep -f "^gpu-screen-recorder" >/dev/null || break
+        sleep 0.1
+    done
+    notify-send -a "Screen recording" "Recording saved" "$(ls -t "$dir"/screenrecording-*.mp4 2>/dev/null | head -1)"
+    exit 0
+fi
+
+mkdir -p "$dir"
+file="$dir/screenrecording-$(date +%Y-%m-%d_%H-%M-%S).mp4"
+monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+
+gpu-screen-recorder -w "$monitor" -k auto -f 60 -fm cfr -fallback-cpu-encoding yes \
+    -a default_output -ac aac -o "$file" >/dev/null 2>&1 &
+notify-send -a "Screen recording" "Recording $monitor" "Press ALT+PRINT again to stop"

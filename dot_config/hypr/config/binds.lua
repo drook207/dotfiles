@@ -183,7 +183,9 @@ bind("SUPER + CTRL + N", "Toggle nightlight",      noct("nightlight-force-toggle
 
 -- Capture
 bind("PRINT",         "Screenshot",   noct("screenshot-region"))
-bind("SUPER + PRINT", "Color picker", hl.dsp.exec_cmd("pkill hyprpicker || hyprpicker -a"))
+bind("ALT + PRINT",          "Screen recording (start/stop)", "screenrecord")
+bind("SUPER + PRINT",        "Color picker", hl.dsp.exec_cmd("pkill hyprpicker || hyprpicker -a"))
+bind("SUPER + CTRL + PRINT", "Extract text (OCR) from screenshot", "screenshot-ocr")
 
 -- Control center panels
 bind("SUPER + CTRL + A",       "Audio",     noct("panel-toggle control-center audio"))

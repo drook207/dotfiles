@@ -12,6 +12,7 @@ pacman = [
     "ghostty", "neovim", "lazygit", "btop",
     # desktop
     "hyprland", "uwsm", "noctalia", "hyprpicker", "grim", "wl-clipboard", "swash",
+    "slurp", "gpu-screen-recorder", "tesseract", "tesseract-data-eng", "tesseract-data-deu",
     "dolphin", "gnome-calculator", "firefox", "localsend",
     # look and feel
     "ttf-jetbrains-mono-nerd", "adw-gtk-theme", "breeze-icons", "qt6ct",
