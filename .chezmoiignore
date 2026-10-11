@@ -1,2 +1,5 @@
 # fish rewrites its universal variables at runtime
 .config/fish/fish_variables
+
+# repo documentation
+README.md
