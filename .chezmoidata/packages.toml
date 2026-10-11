@@ -1,10 +1,11 @@
-# Packages the dotfiles rely on, installed by run_onchange_after_install-packages.sh.tmpl.
+# Packages the dotfiles rely on and system services to enable, handled by
+# run_onchange_after_install-packages.sh.tmpl.
 # Repo names are CachyOS/Arch; "aur" packages are built with paru.
 
 [packages]
 pacman = [
     # base tooling
-    "chezmoi", "git", "github-cli", "curl", "jq", "unzip",
+    "chezmoi", "git", "github-cli", "curl", "jq", "unzip", "pacman-contrib", "fwupd",
     # shell
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
@@ -25,3 +26,10 @@ aur = [
 [packages.commands]
 starship = "starship"
 herdr-bin = "herdr"
+
+# System services enabled (and started) once their packages are installed
+[packages.services]
+system = [
+    "paccache.timer",       # weekly: keep the last 3 versions of each package
+    "fwupd-refresh.timer",  # refresh firmware metadata for `fwupdmgr update`
+]

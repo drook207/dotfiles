@@ -48,9 +48,9 @@ chezmoi re-add <file>                  # copy a file changed in ~ back into the 
 |---|---|
 | `dot_config/` | Everything under `~/.config` |
 | `dot_local/share/wallpapers/` | Wallpaper (pixel-art castle) |
-| `.chezmoidata/packages.toml` | Packages the configs need (repo + AUR) |
+| `.chezmoidata/packages.toml` | Packages the configs need (repo + AUR) and system services to enable |
 | `.chezmoiexternal.toml` | Repos chezmoi clones (ghostty cursor shaders) |
-| `run_onchange_after_install-packages.sh.tmpl` | Installs missing packages with pacman/paru |
+| `run_onchange_after_install-packages.sh.tmpl` | Installs missing packages with pacman/paru, enables the services |
 | `run_onchange_after_gtk-qt-settings.sh` | GTK/Qt font and cursor settings that live outside `~/.config` files |
 | `run_onchange_after_firefox-theme.sh` | Installs Pywalfox into the default Firefox profile |
 

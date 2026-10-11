@@ -1,0 +1,37 @@
+[user]
+	name = Pascal Berndt
+	email = drook207@gmail.com
+
+[init]
+	defaultBranch = main
+
+[core]
+	editor = nvim
+	autocrlf = input
+
+[pull]
+	rebase = true
+
+[rebase]
+	autoStash = true
+	stat = true
+
+[push]
+	autoSetupRemote = true
+
+[fetch]
+	prune = true
+
+[merge]
+	conflictStyle = zdiff3
+
+[status]
+	showUntrackedFiles = all
+
+# GitHub logins via `gh auth login` (written by `gh auth setup-git`)
+[credential "https://github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
