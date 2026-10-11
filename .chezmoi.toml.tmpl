@@ -1,0 +1,9 @@
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+# Secrets (e.g. SSH private keys) are stored age-encrypted. The identity is not
+# in the repo: copy ~/.config/chezmoi/key.txt to a new machine before applying.
+encryption = "age"
+[age]
+    useBuiltin = true
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "age1n3amjudv4arve0f3eqfneg3srtld3tgxqk3ulhq0cdwsrdju9d7s9egqrh"

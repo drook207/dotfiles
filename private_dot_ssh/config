@@ -1,0 +1,4 @@
+Host Homeserver
+   HostName Homeserver
+   PreferredAuthentications publickey
+   IdentityFile ~/.ssh/id_homeserver
