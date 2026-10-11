@@ -12,7 +12,7 @@ pacman = [
     "ghostty", "neovim", "lazygit", "btop",
     # desktop
     "hyprland", "uwsm", "noctalia", "hyprpicker", "grim", "wl-clipboard", "swash",
-    "dolphin", "gnome-calculator", "firefox",
+    "dolphin", "gnome-calculator", "firefox", "localsend",
     # look and feel
     "ttf-jetbrains-mono-nerd", "adw-gtk-theme", "breeze-icons", "qt6ct",
 ]
@@ -33,4 +33,11 @@ system = [
     "paccache.timer",          # weekly: keep the last 3 versions of each package
     "fwupd-refresh.timer",     # refresh firmware metadata for `fwupdmgr update`
     "snapper-timeline.timer",  # hourly /home snapshots (snapper-home script)
+]
+
+# ufw rules ("<from> <port> <proto>") added when ufw is enabled
+[packages.firewall]
+allow = [
+    "192.168.0.0/16 53317 tcp",  # LocalSend (home network only)
+    "192.168.0.0/16 53317 udp",
 ]

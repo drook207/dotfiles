@@ -9,7 +9,7 @@
 {{- $all := concat .packages.pacman .packages.aur }}
 {{- $services := .packages.services.system }}
 {{- $check := printf "command -v pacman >/dev/null && pacman -T %s; command -v %s; systemctl is-enabled %s; true" (join " " $all) (join " " (values .packages.commands | sortAlpha)) (join " " $services) }}
-# {{ list $all .packages.commands $services (output "sh" "-c" $check) | toJson | sha256sum }}
+# {{ list $all .packages.commands $services .packages.firewall (output "sh" "-c" $check) (output "sh" "-c" "cat /etc/ufw/user.rules /etc/ufw/user6.rules 2>/dev/null; true") | toJson | sha256sum }}
 set -euo pipefail
 
 command -v pacman >/dev/null || exit 0
@@ -17,6 +17,7 @@ command -v pacman >/dev/null || exit 0
 pacman_pkgs=({{ range .packages.pacman }}{{ . | quote }} {{ end }})
 aur_pkgs=({{ range .packages.aur }}{{ . | quote }} {{ end }})
 services=({{ range $services }}{{ . | quote }} {{ end }})
+firewall_rules=({{ range .packages.firewall.allow }}{{ . | quote }} {{ end }})
 
 # Packages whose command, if already on the PATH, counts as installed
 declare -A provided_by_command=({{ range $pkg, $cmd := .packages.commands }}[{{ $pkg | quote }}]={{ $cmd | quote }} {{ end }})
@@ -36,12 +37,23 @@ mapfile -t missing_repo < <(missing "${pacman_pkgs[@]}")
 mapfile -t missing_aur < <(missing "${aur_pkgs[@]}")
 mapfile -t disabled_services < <(for s in "${services[@]}"; do systemctl is-enabled -q "$s" 2>/dev/null || echo "$s"; done)
 
-if [ ${#missing_repo[@]} -eq 0 ] && [ ${#missing_aur[@]} -eq 0 ] && [ ${#disabled_services[@]} -eq 0 ]; then
+# ufw rules missing from /etc/ufw/user.rules (only when ufw is enabled)
+missing_rules=()
+if systemctl is-enabled -q ufw 2>/dev/null; then
+    for r in "${firewall_rules[@]}"; do
+        read -r from port proto <<<"$r"
+        grep -q "^### tuple ### allow $proto $port 0.0.0.0/0 any $from in" /etc/ufw/user.rules 2>/dev/null ||
+            missing_rules+=("$r")
+    done
+fi
+
+if [ ${#missing_repo[@]} -eq 0 ] && [ ${#missing_aur[@]} -eq 0 ] && [ ${#disabled_services[@]} -eq 0 ] &&
+    [ ${#missing_rules[@]} -eq 0 ]; then
     exit 0
 fi
 
 if [ ! -t 0 ] || [ ! -t 1 ]; then
-    missing_all=("${missing_repo[@]}" "${missing_aur[@]}" "${disabled_services[@]}")
+    missing_all=("${missing_repo[@]}" "${missing_aur[@]}" "${disabled_services[@]}" "${missing_rules[@]/#/ufw:}")
     echo "install-packages: missing/not enabled: ${missing_all[*]}" >&2
     echo "install-packages: run 'chezmoi apply' in a terminal to install them" >&2
     exit 1
@@ -68,3 +80,8 @@ fi
 if [ ${#disabled_services[@]} -gt 0 ]; then
     sudo systemctl enable --now "${disabled_services[@]}"
 fi
+
+for r in "${missing_rules[@]}"; do
+    read -r from port proto <<<"$r"
+    sudo ufw allow from "$from" to any port "$port" proto "$proto"
+done
