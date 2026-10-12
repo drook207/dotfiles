@@ -11,7 +11,7 @@ apt = [
     # shell (fd-find/bat install as fdfind/batcat; the script links fd/bat)
     "fish", "starship", "zoxide", "fzf", "eza", "fd-find", "ripgrep", "bat",
     # terminal apps
-    "ghostty", "neovim", "lazygit", "btop", "tree-sitter-cli",
+    "ghostty", "neovim", "lazygit", "btop", "tree-sitter-cli", "git-delta",
     # yazi itself comes from GitHub (not packaged); these are its previewers
     "7zip", "poppler-utils", "ffmpeg", "imagemagick", "resvg",
     # development (mise from its own repo, lazydocker from GitHub)

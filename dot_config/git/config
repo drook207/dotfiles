@@ -10,6 +10,29 @@
 [core]
 	editor = nvim
 	autocrlf = input
+	# delta for diffs; falls back to less until git-delta is installed
+	pager = "if command -v delta >/dev/null; then delta; else less; fi"
+
+[interactive]
+	diffFilter = "if command -v delta >/dev/null; then delta --color-only; else cat; fi"
+
+# Kanagawa Paper Ink: syntax colors from the terminal palette (ansi theme),
+# diff backgrounds winterRed/winterGreen like kanagawa-paper.nvim
+[delta]
+	navigate = true
+	line-numbers = true
+	syntax-theme = ansi
+	minus-style = "syntax #43242b"
+	minus-emph-style = "#c4746e bold #43242b"
+	plus-style = "syntax #2b3328"
+	plus-emph-style = "#699469 bold #2b3328"
+	line-numbers-minus-style = "#c4746e"
+	line-numbers-plus-style = "#699469"
+	line-numbers-zero-style = "#727169"
+	file-style = "#c4b28a bold"
+	file-decoration-style = "#c4b28a ul"
+	hunk-header-style = "file line-number syntax"
+	hunk-header-decoration-style = "#625e5a box"
 
 [pull]
 	rebase = true

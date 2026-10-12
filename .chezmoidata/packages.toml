@@ -13,6 +13,7 @@ pacman = [
     # terminal apps
     "ghostty", "neovim", "lazygit", "btop",
     "yazi", "7zip", "resvg",  # file manager (+ archive and SVG previews)
+    "git-delta",              # diffs in git and lazygit
     # development
     "mise", "docker", "docker-compose", "docker-buildx", "lazydocker", "tree-sitter-cli",
     "dua-cli", "whois",

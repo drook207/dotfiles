@@ -25,3 +25,8 @@ gui:
       - "#c4b28a"
     defaultFgColor:
       - "#DCD7BA"
+git:
+  diffRenderers:
+    # delta (git-delta), styled by the [delta] section of the git config
+    - name: delta
+      command: "if command -v delta >/dev/null; then delta --paging=never; else cat; fi"
