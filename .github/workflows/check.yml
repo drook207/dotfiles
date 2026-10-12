@@ -53,7 +53,7 @@ jobs:
           yaml.safe_load(open("dot_config/lazygit/config.yml")); print("ok lazygit")
           PY
           chezmoi --source "$PWD" execute-template < dot_config/noctalia/config.toml.tmpl | python3 -c "import sys, tomllib; tomllib.loads(sys.stdin.read()); print('ok noctalia config')"
-          git config --file dot_config/git/config --list > /dev/null && echo "ok git config"
+          chezmoi --source "$PWD" execute-template < dot_config/git/config.tmpl | git config --file /dev/stdin --list > /dev/null && echo "ok git config"
 
       - name: chezmoi apply (dry run into an empty home)
         run: |
@@ -126,7 +126,7 @@ jobs:
       - name: Prepare container
         run: |
           echo "assumeyes=True" >> /etc/dnf/dnf.conf
-          dnf install git curl util-linux
+          dnf install git curl util-linux util-linux-script
           printf '#!/bin/sh\nexec "$@"\n' > /usr/local/bin/sudo && chmod +x /usr/local/bin/sudo
           sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
