@@ -12,6 +12,7 @@ pacman = [
     "fish", "starship", "zoxide", "fzf", "eza", "fd", "ripgrep", "bat",
     # terminal apps
     "ghostty", "neovim", "lazygit", "btop",
+    "yazi", "7zip", "resvg",  # file manager (+ archive and SVG previews)
     # development
     "mise", "docker", "docker-compose", "docker-buildx", "lazydocker", "tree-sitter-cli",
     "dua-cli", "whois",

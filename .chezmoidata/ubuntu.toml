@@ -12,6 +12,8 @@ apt = [
     "fish", "starship", "zoxide", "fzf", "eza", "fd-find", "ripgrep", "bat",
     # terminal apps
     "ghostty", "neovim", "lazygit", "btop", "tree-sitter-cli",
+    # yazi itself comes from GitHub (not packaged); these are its previewers
+    "7zip", "poppler-utils", "ffmpeg", "imagemagick", "resvg",
     # development (mise from its own repo, lazydocker from GitHub)
     "mise", "docker.io", "docker-compose-v2", "docker-buildx",
     # desktop: Hyprland stack from ppa:cppiber/hyprland, noctalia from its repo
@@ -37,3 +39,4 @@ services = [
 nerd_font = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz 04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf"
 lazydocker = "https://github.com/jesseduffield/lazydocker/releases/download/v0.25.2/lazydocker_0.25.2_Linux_x86_64.tar.gz 0d9dbfc26068b218e7ed84b104748cadc6e3cf733c0afd35465306fb39b9523c"
 localsend = "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-x86-64.deb cc42a4f3eacdcb25ec31f0016b1272acb003145ab30484db8965450e20c72cd2"
+yazi = "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-x86_64-unknown-linux-gnu.zip a02fe91d3304294048c681f010f1100856872a4e98ecf6927328e888d40a6ad2"

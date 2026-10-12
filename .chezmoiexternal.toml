@@ -4,3 +4,8 @@
     type = "git-repo"
     url = "https://github.com/sahaj-b/ghostty-cursor-shaders.git"
     refreshPeriod = "168h"
+
+[".config/yazi/flavors/kanagawa-paper.yazi"]
+    type = "git-repo"
+    url = "https://github.com/melindachang/kanagawa-paper.yazi.git"
+    refreshPeriod = "168h"

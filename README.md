@@ -11,6 +11,7 @@ Everything is themed with **Kanagawa Paper Ink** and uses **JetBrains Mono Nerd 
 | Terminal workspaces | herdr |
 | Shell | fish + starship, zoxide, fzf, eza |
 | Editor | Neovim (LazyVim) |
+| File manager (terminal) | yazi; `y` starts it and cds to where you left off |
 | Browser | Firefox, themed via Pywalfox |
 
 ## New machine
@@ -78,7 +79,7 @@ chezmoi re-add <file>                  # copy a file changed in ~ back into the 
 The Kanagawa Paper Ink palette is defined once for noctalia in
 `dot_config/noctalia/palettes/KanagawaPaperInk.json`. noctalia applies it to the
 bar, lock screen, GTK, Qt, btop and kitty, and pushes it to Firefox through
-Pywalfox. ghostty, Neovim, lazygit, fzf, fish, starship, herdr and the Hyprland
+Pywalfox. ghostty, Neovim, lazygit, fzf, fish, starship, herdr, yazi and the Hyprland
 borders set the same colors in their own configs.
 
 ## Keybindings

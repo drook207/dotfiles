@@ -8,7 +8,7 @@
 #
 # Re-runs whenever the lists or the installed state change:
 {{- $apt := .ubuntu.apt }}
-{{- $check := printf ". /etc/os-release; [ \"$ID\" = ubuntu ] || exit 0; dpkg-query -W -f '${Package} ${Status}\\n' %s 2>&1; ls /etc/apt/sources.list.d; ls ~/.local/share/fonts/JetBrainsMonoNerd 2>&1; command -v herdr lazydocker fd bat; systemctl is-enabled %s; cat /etc/ufw/user.rules ~/.local/state/dotfiles/ufw-rules-added 2>/dev/null; true" (join " " $apt) (join " " .ubuntu.services) }}
+{{- $check := printf ". /etc/os-release; [ \"$ID\" = ubuntu ] || exit 0; dpkg-query -W -f '${Package} ${Status}\\n' %s 2>&1; ls /etc/apt/sources.list.d; ls ~/.local/share/fonts/JetBrainsMonoNerd 2>&1; command -v herdr lazydocker yazi fd bat; systemctl is-enabled %s; cat /etc/ufw/user.rules ~/.local/state/dotfiles/ufw-rules-added 2>/dev/null; true" (join " " $apt) (join " " .ubuntu.services) }}
 # {{ list $apt .ubuntu.downloads .ubuntu.services .packages.firewall (output "sh" "-c" $check) | toJson | sha256sum }}
 set -euo pipefail
 
@@ -21,6 +21,7 @@ firewall_rules=({{ range .packages.firewall.allow }}{{ . | quote }} {{ end }})
 read -r font_url font_sha <<<{{ .ubuntu.downloads.nerd_font | quote }}
 read -r lazydocker_url lazydocker_sha <<<{{ .ubuntu.downloads.lazydocker | quote }}
 read -r localsend_url localsend_sha <<<{{ .ubuntu.downloads.localsend | quote }}
+read -r yazi_url yazi_sha <<<{{ .ubuntu.downloads.yazi | quote }}
 
 font_dir="$HOME/.local/share/fonts/JetBrainsMonoNerd"
 sources=/etc/apt/sources.list.d
@@ -48,6 +49,7 @@ compgen -G "$font_dir/*.ttf" >/dev/null || missing_extra+=(nerd-font)
 [ -x /usr/local/bin/lazydocker ] || missing_extra+=(lazydocker)
 dpkg-query -W -f '${Status}' localsend 2>/dev/null | grep -q "install ok installed" || missing_extra+=(localsend)
 command -v herdr >/dev/null || [ -x "$HOME/.local/bin/herdr" ] || missing_extra+=(herdr)
+[ -x "$HOME/.local/bin/yazi" ] || command -v yazi >/dev/null || missing_extra+=(yazi)
 
 disabled_services=()
 for s in "${services[@]}"; do
@@ -151,6 +153,11 @@ for extra in "${missing_extra[@]}"; do
         localsend)
             fetch "$localsend_url" "$localsend_sha" "$dl/localsend.deb"
             sudo apt-get install "$dl/localsend.deb"
+            ;;
+        yazi)
+            fetch "$yazi_url" "$yazi_sha" "$dl/yazi.zip"
+            unzip -q -o "$dl/yazi.zip" -d "$dl/yazi"
+            install -Dm 755 "$dl"/yazi/*/yazi "$dl"/yazi/*/ya -t "$HOME/.local/bin"
             ;;
         herdr)
             # official installer: ~/.local/bin/herdr, verifies its own SHA-256
