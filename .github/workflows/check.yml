@@ -1,0 +1,99 @@
+name: check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck lua5.4 fish python3-yaml
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+      - name: Render chezmoi script templates
+        run: |
+          mkdir -p "$RUNNER_TEMP/rendered"
+          for f in run_*.tmpl; do
+            chezmoi --source "$PWD" execute-template < "$f" > "$RUNNER_TEMP/rendered/${f%.tmpl}"
+          done
+          cp run_*.sh install.sh "$RUNNER_TEMP/rendered/"
+          cp dot_local/bin/executable_* dot_config/herdr/status/executable_* system/usr/local/bin/* "$RUNNER_TEMP/rendered/"
+          ls "$RUNNER_TEMP/rendered"
+
+      - name: Shell scripts (syntax + shellcheck errors)
+        run: |
+          status=0
+          for f in "$RUNNER_TEMP"/rendered/*; do
+            if head -1 "$f" | grep -q bash; then bash -n "$f" || status=1; else sh -n "$f" || status=1; fi
+            shellcheck -S error "$f" || status=1
+          done
+          exit $status
+
+      - name: Hyprland Lua
+        run: for f in dot_config/hypr/hyprland.lua dot_config/hypr/config/*.lua; do luac5.4 -p "$f"; done
+
+      - name: fish
+        run: for f in $(find dot_config/fish -name '*.fish'); do fish -n "$f"; done
+
+      - name: TOML, JSON, YAML
+        run: |
+          python3 - <<'PY'
+          import glob, json, tomllib, yaml
+          for f in glob.glob(".chezmoidata/*.toml") + [".chezmoiexternal.toml", "dot_config/herdr/config.toml", "dot_config/yazi/theme.toml", "dot_config/starship.toml"]:
+              tomllib.load(open(f, "rb")); print("ok", f)
+          for f in glob.glob("dot_config/noctalia/palettes/*.json"):
+              json.load(open(f)); print("ok", f)
+          yaml.safe_load(open("dot_config/lazygit/config.yml")); print("ok lazygit")
+          PY
+          chezmoi --source "$PWD" execute-template < dot_config/noctalia/config.toml.tmpl | python3 -c "import sys, tomllib; tomllib.loads(sys.stdin.read()); print('ok noctalia config')"
+          git config --file dot_config/git/config --list > /dev/null && echo "ok git config"
+
+      - name: chezmoi apply (dry run into an empty home)
+        run: |
+          mkdir -p "$RUNNER_TEMP/home"
+          chezmoi --source "$PWD" --destination "$RUNNER_TEMP/home" --config "$RUNNER_TEMP/chezmoi.toml" \
+            apply --dry-run --force --exclude=scripts,encrypted,externals --verbose | grep -c '^diff --git'
+
+  ubuntu:
+    # The real Ubuntu install script in an ubuntu:26.04 container: APT sources,
+    # all packages and the pinned downloads. No systemd here, so services are
+    # skipped; sudo is a pass-through (root) and `script` provides the terminal.
+    runs-on: ubuntu-24.04
+    container: ubuntu:26.04
+    steps:
+      - name: Prepare container
+        run: |
+          apt-get update
+          apt-get install -y curl git ca-certificates util-linux
+          printf '#!/bin/sh\nexec "$@"\n' > /usr/local/bin/sudo && chmod +x /usr/local/bin/sudo
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+          echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90-ci-yes
+
+      - uses: actions/checkout@v4
+
+      - name: Run the Ubuntu install script
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          chezmoi --source "$PWD" execute-template < run_onchange_after_00-install-packages-ubuntu.sh.tmpl > /tmp/install-ubuntu.sh
+          script -qec "bash /tmp/install-ubuntu.sh" /dev/null
+
+      - name: Everything installed?
+        run: |
+          chezmoi --source "$PWD" execute-template < run_onchange_after_00-install-packages-ubuntu.sh.tmpl > /tmp/install-ubuntu.sh
+          # without a terminal it only reports; services can't be enabled here
+          out=$(bash /tmp/install-ubuntu.sh < /dev/null 2>&1 || true)
+          echo "$out"
+          missing=$(echo "$out" | sed -n 's/^install-packages-ubuntu: missing\/not enabled: //p' | tr ' ' '\n' | grep -v -E '\.(service|socket|timer)$' || true)
+          if [ -n "$missing" ]; then echo "still missing: $missing"; exit 1; fi
+          for c in Hyprland noctalia ghostty nvim fish herdr yazi lazydocker fd bat delta op mise; do
+            command -v "$c" >/dev/null || [ -x "$HOME/.local/bin/$c" ] || { echo "missing command: $c"; exit 1; }
+          done
+          echo "all packages and commands present"
