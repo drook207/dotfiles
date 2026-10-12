@@ -9,3 +9,7 @@ system
 
 # bootstrap script, run via curl (see README)
 install.sh
+
+# Claude Code: only settings.json is managed; never credentials, history, projects or caches
+.claude/*
+!.claude/settings.json

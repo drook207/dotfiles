@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Install/update herdr's Claude Code integration (the hook that shows Claude's
+# state in herdr's sidebar). The hook script comes from herdr itself so it
+# matches the installed herdr; settings.json (which calls it) is managed by
+# chezmoi in dot_claude/ and left unchanged by the installer.
+# Re-runs whenever the integration status or the tools change:
+# {{ output "sh" "-c" "command -v herdr claude; herdr integration status 2>/dev/null | grep '^claude:'; true" | sha256sum }}
+set -euo pipefail
+
+herdr=$(command -v herdr || echo "$HOME/.local/bin/herdr")
+[ -x "$herdr" ] || exit 0
+command -v claude >/dev/null || [ -d "$HOME/.claude" ] || exit 0
+
+"$herdr" integration status 2>/dev/null | grep -q '^claude: current' && exit 0
+"$herdr" integration install claude
