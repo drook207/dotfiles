@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# WSL only: theme Windows Terminal with Kanagawa Paper Ink and JetBrains Mono
+# Nerd Font (windows/wt-apply-theme.py keeps all other settings), and install
+# the font for the Windows user if it's missing. No admin rights needed.
+# For tests: WT_SETTINGS=<file> themes just that file and skips the font.
+#
+# Re-runs whenever the theme files change:
+# scheme {{ include "windows/kanagawa-paper-ink.json" | sha256sum }}
+# script {{ include "windows/wt-apply-theme.py" | sha256sum }}
+set -euo pipefail
+
+{{ if ne (includeTemplate "is-wsl" .) "true" -}}
+exit 0
+{{ end -}}
+src={{ .chezmoi.sourceDir | quote }}/windows
+font_face="JetBrainsMono Nerd Font"
+read -r font_url font_sha <<<{{ .ubuntu.downloads.nerd_font | quote }}
+
+settings=()
+win_local=""
+if [ -n "${WT_SETTINGS:-}" ]; then
+    settings=("$WT_SETTINGS")
+else
+    win_local=$(wslpath "$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')" 2>/dev/null || true)
+    for f in "$win_local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json" \
+             "$win_local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json" \
+             "$win_local/Microsoft/Windows Terminal/settings.json"; do
+        [ -f "$f" ] && settings+=("$f")
+    done
+fi
+
+if [ ${#settings[@]} -eq 0 ]; then
+    echo "windows-terminal: no settings.json found - start Windows Terminal once, then run 'chezmoi apply' again" >&2
+fi
+for f in "${settings[@]}"; do
+    python3 "$src/wt-apply-theme.py" "$f" "$src/kanagawa-paper-ink.json" "$font_face"
+done
+
+# Font for the Windows user (per-user install, like "Install" in the font viewer)
+[ -n "$win_local" ] || exit 0
+fonts_dir="$win_local/Microsoft/Windows/Fonts"
+if [ -f "$fonts_dir/JetBrainsMonoNerdFont-Regular.ttf" ] || [ -f /mnt/c/Windows/Fonts/JetBrainsMonoNerdFont-Regular.ttf ]; then
+    exit 0
+fi
+if ! (
+    set -e
+    tmp=$(mktemp -d)
+    trap 'rm -rf "$tmp"' EXIT
+    curl -fsSL -o "$tmp/font.tar.xz" "$font_url"
+    echo "$font_sha  $tmp/font.tar.xz" | sha256sum -c --status
+    tar -xJf "$tmp/font.tar.xz" -C "$tmp"
+    mkdir -p "$fonts_dir"
+    for style in Regular Bold Italic BoldItalic; do
+        file="JetBrainsMonoNerdFont-$style.ttf"
+        cp "$tmp/$file" "$fonts_dir/$file"
+        reg.exe add 'HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts' \
+            /v "JetBrainsMono Nerd Font $style (TrueType)" /t REG_SZ \
+            /d "$(wslpath -w "$fonts_dir/$file")" /f >/dev/null
+    done
+); then
+    echo "windows-terminal: couldn't install the font for Windows (blocked by policy?)." >&2
+    echo "  Install JetBrainsMono Nerd Font manually from https://www.nerdfonts.com/font-downloads" >&2
+    exit 0
+fi
+echo "windows-terminal: installed JetBrainsMono Nerd Font - restart Windows Terminal to use it"

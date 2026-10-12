@@ -56,13 +56,18 @@
 # Sign commits and tags with the SSH key via 1Password (it asks to approve)
 [gpg]
 	format = ssh
+{{- $signer := "/opt/1Password/op-ssh-sign" }}
+{{- if eq (includeTemplate "is-wsl" .) "true" }}
+{{- /* WSL: sign through the Windows 1Password app; off if it is not installed */}}
+{{-   $signer = output "sh" "-c" (includeTemplate "find-op-ssh-sign-wsl.sh" .) | trim }}
+{{- end }}
 [gpg "ssh"]
-	program = /opt/1Password/op-ssh-sign
+	program = {{ $signer }}
 	allowedSignersFile = ~/.config/git/allowed_signers
 [commit]
-	gpgSign = true
+	gpgSign = {{ if $signer }}true{{ else }}false{{ end }}
 [tag]
-	gpgSign = true
+	gpgSign = {{ if $signer }}true{{ else }}false{{ end }}
 
 # GitHub logins via `gh auth login` (written by `gh auth setup-git`)
 [credential "https://github.com"]

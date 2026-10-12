@@ -1,0 +1,17 @@
+# Fedora 45 (in WSL2) counterpart of packages.toml: the terminal setup only,
+# handled by run_onchange_after_00-install-packages-fedora.sh.tmpl. Names are
+# checked against Fedora 44/rawhide.
+
+[fedora]
+dnf = [
+    "git", "curl", "jq", "unzip", "tar", "xz", "python3", "gh", "glab",
+    "fish", "zoxide", "fzf", "eza", "fd-find", "ripgrep", "bat", "git-delta",
+    "neovim", "btop", "tree-sitter-cli",
+    # yazi previewers
+    "7zip", "poppler-utils", "ffmpeg-free", "ImageMagick",
+    # from mise's own rpm repo
+    "mise",
+]
+
+# Not packaged by Fedora: installed globally with mise
+mise = ["starship", "lazygit", "yazi"]

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Bootstrap these dotfiles on a fresh CachyOS/Arch or Ubuntu 26.04 install:
+# Bootstrap these dotfiles on a fresh CachyOS/Arch or Ubuntu 26.04 install, or
+# Fedora 45 in WSL2 (terminal setup only):
 #
 #   curl -fsSL https://raw.githubusercontent.com/drook207/dotfiles/main/install.sh | bash
 #
@@ -44,8 +45,11 @@ elif [ "${ID:-}" = ubuntu ]; then
         sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
     fi
     export PATH="$HOME/.local/bin:$PATH"
+elif [ "${ID:-}" = fedora ]; then
+    say "Installing git and chezmoi"
+    sudo dnf install -y git chezmoi curl
 else
-    echo "Supported: CachyOS/Arch (pacman) and Ubuntu 26.04." >&2
+    echo "Supported: CachyOS/Arch (pacman), Ubuntu 26.04 and Fedora (WSL)." >&2
     exit 1
 fi
 
@@ -69,6 +73,8 @@ The secrets (e.g. ~/.ssh/id_homeserver) are encrypted with an age key that is
 stored in 1Password as the document "$age_key_item".
 
   1. Start 1Password (installed just now) and sign in.
+     WSL: use the 1Password app on Windows, plus its CLI (winget install
+     AgileBits.1Password.CLI); op.exe is used from here.
   2. Settings -> Developer -> enable "Integrate with 1Password CLI".
 
 Or copy key.txt from another machine to $age_key yourself.
@@ -77,7 +83,10 @@ EOF
         read -r -p "Press Enter to fetch the key with op, or type 's' to skip: " answer
         [ "$answer" = s ] && break
         mkdir -p "$(dirname "$age_key")"
-        (umask 077 && op document get "$age_key_item" --out-file "$age_key") ||
+        op=op
+        command -v op >/dev/null || ! command -v op.exe >/dev/null || op=op.exe
+        # op.exe (Windows) can't write to a WSL path: read stdout instead
+        (umask 077 && "$op" document get "$age_key_item" | tr -d '\r' > "$age_key.tmp" && [ -s "$age_key.tmp" ] && mv "$age_key.tmp" "$age_key") ||
             echo "op couldn't fetch it - is 1Password running, signed in, with CLI integration on?"
     done
 fi
@@ -95,6 +104,7 @@ cat <<'EOF'
 Next steps:
   - Log out and back in (PATH, cursor, Hyprland and noctalia pick everything up).
     Ubuntu: pick the "Hyprland (uwsm-managed)" session on the GDM login screen.
+    WSL: restart Windows Terminal (theme and font are set by chezmoi).
   - Firefox: start it, close it, start it again (installs and enables Pywalfox).
   - gh auth login   (GitHub, also needed for pushing these dotfiles)
   - glab auth login (GitLab)

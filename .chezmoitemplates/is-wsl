@@ -1,0 +1,2 @@
+{{- /* "true" in WSL (Microsoft kernel); DOTFILES_FORCE_WSL=1 forces it for tests */ -}}
+{{- if or (contains "microsoft" (lower .chezmoi.kernel.osrelease)) (env "DOTFILES_FORCE_WSL") -}}true{{- end -}}

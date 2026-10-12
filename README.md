@@ -48,6 +48,25 @@ Differences from Arch:
   can't reach a snap Firefox, so the Paper Ink colors don't apply there.
 - snapper, btrfs scrub and kernel-modules-hook are Arch/btrfs-only and skipped.
 
+### Fedora 45 in WSL2 (Windows)
+
+The same command inside WSL sets up the terminal environment only: chezmoi
+detects WSL (Microsoft kernel) and skips Hyprland, noctalia, ghostty and the
+desktop scripts. Packages come from dnf
+(`run_onchange_after_00-install-packages-fedora.sh.tmpl`, list in
+`.chezmoidata/fedora.toml`); starship, lazygit and yazi via `mise use -g`;
+herdr via its installer. In WSL:
+
+- Windows Terminal gets the Kanagawa Paper Ink scheme and JetBrains Mono Nerd
+  Font as defaults for all profiles (`run_onchange_after_windows-terminal`, files
+  in `windows/`); the font is installed for the Windows user if missing.
+  Restart Windows Terminal afterwards.
+- The age key comes from the Windows 1Password app via `op.exe`
+  (`winget install AgileBits.1Password.CLI`, CLI integration enabled).
+- Commits are signed through 1Password's `op-ssh-sign-wsl.exe`; without it,
+  signing is off in WSL.
+- `DOTFILES_FORCE_WSL=1` forces WSL mode, e.g. for tests.
+
 ## Day to day
 
 ```sh

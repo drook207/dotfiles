@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Fedora counterpart of 00-install-packages (meant for Fedora in WSL2, where
+# only the terminal setup applies): dnf packages from .chezmoidata/fedora.toml,
+# mise's rpm repo, tools Fedora doesn't package via `mise use -g`, and herdr via
+# its installer. Does nothing on other distributions. Needs sudo, so outside an
+# interactive terminal it fails with a hint instead.
+#
+# Re-runs whenever the lists or the installed state change:
+{{- $check := printf ". /etc/os-release; [ \"$ID\" = fedora ] || exit 0; rpm -q %s 2>&1; ls /etc/yum.repos.d; command -v herdr %s; true" (join " " .fedora.dnf) (join " " .fedora.mise) }}
+# {{ list .fedora (output "sh" "-c" $check) | toJson | sha256sum }}
+set -euo pipefail
+
+. /etc/os-release
+[ "${ID:-}" = fedora ] || exit 0
+
+dnf_pkgs=({{ range .fedora.dnf }}{{ . | quote }} {{ end }})
+mise_tools=({{ range .fedora.mise }}{{ . | quote }} {{ end }})
+
+missing_repo=()
+[ -f /etc/yum.repos.d/mise.repo ] || missing_repo=(mise)
+
+missing_dnf=()
+for p in "${dnf_pkgs[@]}"; do
+    rpm -q --quiet "$p" || missing_dnf+=("$p")
+done
+
+# mise tools count as present when the command exists (mise shims or other)
+missing_mise=()
+for t in "${mise_tools[@]}"; do
+    command -v "$t" >/dev/null || [ -x "$HOME/.local/share/mise/shims/$t" ] || missing_mise+=("$t")
+done
+
+missing_herdr=()
+command -v herdr >/dev/null || [ -x "$HOME/.local/bin/herdr" ] || missing_herdr=(herdr)
+
+all=("${missing_repo[@]/#/repo:}" "${missing_dnf[@]}" "${missing_mise[@]/#/mise:}" "${missing_herdr[@]}")
+[ ${#all[@]} -gt 0 ] || exit 0
+
+if [ ! -t 0 ] || [ ! -t 1 ]; then
+    echo "install-packages-fedora: missing: ${all[*]}" >&2
+    echo "install-packages-fedora: run 'chezmoi apply' in a terminal to install them" >&2
+    exit 1
+fi
+
+if [ ${#missing_repo[@]} -gt 0 ]; then
+    curl -fsSL https://mise.jdx.dev/rpm/mise.repo | sudo tee /etc/yum.repos.d/mise.repo >/dev/null
+fi
+
+if [ ${#missing_dnf[@]} -gt 0 ]; then
+    sudo dnf install "${missing_dnf[@]}"
+fi
+
+if [ ${#missing_mise[@]} -gt 0 ]; then
+    for t in "${missing_mise[@]}"; do
+        mise use --global --yes "$t@latest"
+    done
+fi
+
+if [ ${#missing_herdr[@]} -gt 0 ]; then
+    # official installer: ~/.local/bin/herdr, verifies its own SHA-256
+    curl -fsSL https://herdr.dev/install.sh | sh
+fi

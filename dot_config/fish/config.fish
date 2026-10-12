@@ -14,9 +14,10 @@ abbr -a ls eza
 abbr -a ll eza -al
 abbr -a find fd
 set -gx EDITOR nvim
+# mise first: on Fedora/WSL it provides starship, lazygit and yazi
+command -q mise; and mise activate fish | source
 starship init fish | source
 zoxide init --cmd cd fish | source
-command -q mise; and mise activate fish | source
 
 # User-installed tools (pipx, herdr, ...); no-op if already on the PATH
 fish_add_path -g ~/.local/bin

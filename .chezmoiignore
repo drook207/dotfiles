@@ -16,3 +16,37 @@ install.sh
 
 # GitHub Actions checks, not dotfiles
 .github
+
+# WSL: terminal setup only. The desktop (Hyprland, noctalia, ghostty, ...)
+# belongs to Windows there, and Windows Terminal is themed separately.
+{{- if eq (includeTemplate "is-wsl" .) "true" }}
+.config/hypr
+.config/hypr/**
+.config/noctalia
+.config/noctalia/**
+.config/uwsm
+.config/uwsm/**
+.config/environment.d
+.config/environment.d/**
+.config/fontconfig
+.config/fontconfig/**
+.config/ghostty
+.config/ghostty/**
+.local/share/wallpapers
+.local/share/wallpapers/**
+.local/bin/hypr-keybindings
+.local/bin/screenrecord
+.local/bin/screenshot-ocr
+00-install-packages.sh
+00-install-packages-ubuntu.sh
+10-system-files.sh
+battery-charge-limit.sh
+docker-localhost.sh
+firefox-theme.sh
+gtk-qt-settings.sh
+noctalia-reload.sh
+snapper-home.sh
+{{- end }}
+
+# Windows Terminal theme files, used by run_onchange_after_windows-terminal (WSL)
+windows

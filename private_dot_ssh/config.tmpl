@@ -2,5 +2,8 @@ Host Homeserver
    HostName Homeserver
    PreferredAuthentications publickey
    IdentityFile ~/.ssh/id_homeserver
+{{- /* WSL has no Linux 1Password agent socket; there ssh uses the key file */}}
+{{- if ne (includeTemplate "is-wsl" .) "true" }}
 Host *
 	IdentityAgent ~/.1password/agent.sock
+{{- end }}
