@@ -1,0 +1,5 @@
+# Tools installed with mise (dot_config/mise/config.toml.tmpl,
+# run_onchange_after_05-mise-tools.sh.tmpl) on every machine. Distro-specific
+# extras are in ubuntu.toml/fedora.toml (`mise = [...]`).
+[mise]
+common = ["pre-commit"]
