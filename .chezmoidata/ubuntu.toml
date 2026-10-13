@@ -21,6 +21,10 @@ apt = [
     "gdb", "lldb", "ccache", "bear", "valgrind", "pkg-config",
     # toolchains Mason needs for the Go and Markdown/Prettier tools
     "golang-go", "nodejs", "npm", "python3-pip",
+    # Qt 6 and Qt 5 development (qmlls/qmlformat/qmllint in qt6-declarative-dev-tools)
+    "qt6-base-dev", "qt6-declarative-dev", "qt6-declarative-dev-tools", "qt6-tools-dev",
+    "qt6-tools-dev-tools", "designer-qt6", "qt6-l10n-tools",
+    "qtbase5-dev", "qtdeclarative5-dev", "qttools5-dev", "qttools5-dev-tools", "qt5-qmake",
     # desktop: Hyprland stack from ppa:cppiber/hyprland, noctalia from its repo
     "hyprland", "uwsm", "hyprpicker", "xdg-desktop-portal-hyprland", "hyprland-guiutils",
     "noctalia", "grim", "slurp", "wl-clipboard", "libnotify-bin",

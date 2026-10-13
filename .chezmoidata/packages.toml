@@ -18,6 +18,8 @@ pacman = [
     "base-devel", "cmake", "ninja", "clang", "gdb", "lldb", "ccache", "bear", "valgrind", "pkgconf",
     # toolchains Mason needs for the Go and Markdown/Prettier tools; ast-grep for grug-far
     "go", "nodejs", "npm", "python-pip", "ast-grep",
+    # Qt 6 and Qt 5: base, QML (qmlls/qmlformat/qmllint come with qt6-declarative), tools (Designer, Linguist)
+    "qt6-base", "qt6-declarative", "qt6-tools", "qt5-base", "qt5-declarative", "qt5-tools",
     # development
     "mise", "docker", "docker-compose", "docker-buildx", "lazydocker", "tree-sitter-cli",
     "dua-cli", "whois",

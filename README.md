@@ -127,6 +127,16 @@ herdr uses Omarchy's tmux-style keys with `Ctrl+Space` as prefix
 Inside herdr, the fish functions `hdl <ai>`, `hds [ai]`, `hdlm <ai>` and
 `hsl <n> <cmd>` open Omarchy's dev layouts (editor, AI, terminal, lazygit).
 
+## Neovim for C++ and Qt
+
+LazyVim with the clangd, cmake, dap and test extras. cmake-tools exports and
+links `compile_commands.json` (clangd understands Qt's moc code through it),
+neotest runs tests through CTest (`neotest-ctest`: QtTest, GoogleTest, Catch2).
+`lua/plugins/qt.lua` wires up Qt 6's `qmlls` (QML completion and qmllint
+warnings) and `qmlformat`, found in `/usr/lib/qt6/bin` or `/usr/lib64/qt6/bin`.
+In `.ui` files, `<leader>cq` opens Qt Designer. For QML imports, configure the
+project with `-DQT_QML_GENERATE_QMLLS_INI=ON`.
+
 ## Things that aren't obvious
 
 - **noctalia settings override this repo.** Changes made in noctalia's settings
