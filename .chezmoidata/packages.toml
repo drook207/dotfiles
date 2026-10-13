@@ -14,6 +14,10 @@ pacman = [
     "ghostty", "neovim", "lazygit", "btop",
     "yazi", "7zip", "resvg",  # file manager (+ archive and SVG previews)
     "git-delta",              # diffs in git and lazygit
+    # C/C++ development (gcc/make come with base-devel; clang has clangd, clang-format, clang-tidy)
+    "base-devel", "cmake", "ninja", "clang", "gdb", "lldb", "ccache", "bear", "valgrind", "pkgconf",
+    # toolchains Mason needs for the Go and Markdown/Prettier tools; ast-grep for grug-far
+    "go", "nodejs", "npm", "python-pip", "ast-grep",
     # development
     "mise", "docker", "docker-compose", "docker-buildx", "lazydocker", "tree-sitter-cli",
     "dua-cli", "whois",

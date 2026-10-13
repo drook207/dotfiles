@@ -113,8 +113,8 @@ jobs:
           echo "$out"
           missing=$(echo "$out" | sed -n 's/^install-packages-ubuntu: missing\/not enabled: //p' | tr ' ' '\n' | grep -v -E '\.(service|socket|timer)$' || true)
           if [ -n "$missing" ]; then echo "still missing: $missing"; exit 1; fi
-          for c in Hyprland noctalia ghostty nvim fish herdr yazi lazydocker fd bat delta op mise; do
-            command -v "$c" >/dev/null || [ -x "$HOME/.local/bin/$c" ] || { echo "missing command: $c"; exit 1; }
+          for c in Hyprland noctalia ghostty nvim fish herdr yazi lazydocker fd bat delta op mise cmake ninja clang clangd gdb lldb ccache bear go npm ast-grep; do
+            command -v "$c" >/dev/null || [ -x "$HOME/.local/bin/$c" ] || [ -x "$HOME/.local/share/mise/shims/$c" ] || { echo "missing command: $c"; exit 1; }
           done
           echo "all packages and commands present"
 
@@ -141,7 +141,7 @@ jobs:
         run: |
           chezmoi --source "$PWD" execute-template < run_onchange_after_00-install-packages-fedora.sh.tmpl > /tmp/install-fedora.sh
           PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH" bash /tmp/install-fedora.sh < /dev/null
-          for c in fish nvim delta eza fd bat rg zoxide fzf mise starship lazygit yazi herdr; do
+          for c in fish nvim delta eza fd bat rg zoxide fzf mise starship lazygit yazi herdr cmake ninja clang clangd gdb lldb ccache bear go npm ast-grep; do
             command -v "$c" >/dev/null || [ -x "$HOME/.local/share/mise/shims/$c" ] || [ -x "$HOME/.local/bin/$c" ] ||
               { echo "missing command: $c"; exit 1; }
           done

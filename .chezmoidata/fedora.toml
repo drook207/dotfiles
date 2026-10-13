@@ -9,9 +9,14 @@ dnf = [
     "neovim", "btop", "tree-sitter-cli",
     # yazi previewers
     "7zip", "poppler-utils", "ffmpeg-free", "ImageMagick",
+    # C/C++ development (clang-tools-extra has clangd, clang-tidy, clang-format)
+    "gcc", "gcc-c++", "make", "cmake", "ninja-build", "clang", "clang-tools-extra",
+    "gdb", "lldb", "ccache", "bear", "valgrind", "pkgconf",
+    # toolchains Mason needs for the Go and Markdown/Prettier tools
+    "golang", "nodejs", "nodejs-npm", "python3-pip",
     # from mise's own rpm repo
     "mise",
 ]
 
 # Not packaged by Fedora: installed globally with mise
-mise = ["starship", "lazygit", "yazi"]
+mise = ["starship", "lazygit", "yazi", "ast-grep"]

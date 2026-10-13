@@ -16,6 +16,11 @@ apt = [
     "7zip", "poppler-utils", "ffmpeg", "imagemagick", "resvg",
     # development (mise from its own repo, lazydocker from GitHub)
     "mise", "docker.io", "docker-compose-v2", "docker-buildx",
+    # C/C++ development
+    "build-essential", "cmake", "ninja-build", "clang", "clangd", "clang-format", "clang-tidy",
+    "gdb", "lldb", "ccache", "bear", "valgrind", "pkg-config",
+    # toolchains Mason needs for the Go and Markdown/Prettier tools
+    "golang-go", "nodejs", "npm", "python3-pip",
     # desktop: Hyprland stack from ppa:cppiber/hyprland, noctalia from its repo
     "hyprland", "uwsm", "hyprpicker", "xdg-desktop-portal-hyprland", "hyprland-guiutils",
     "noctalia", "grim", "slurp", "wl-clipboard", "libnotify-bin",
@@ -26,6 +31,9 @@ apt = [
     # 1Password from its repo
     "1password", "1password-cli",
 ]
+
+# Not packaged by Ubuntu: installed globally with mise
+mise = ["ast-grep"]
 
 # System services enabled (and started); smartd's unit is smartmontools on Ubuntu
 services = [

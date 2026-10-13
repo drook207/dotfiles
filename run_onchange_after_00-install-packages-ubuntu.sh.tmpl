@@ -8,7 +8,7 @@
 #
 # Re-runs whenever the lists or the installed state change:
 {{- $apt := .ubuntu.apt }}
-{{- $check := printf ". /etc/os-release; [ \"$ID\" = ubuntu ] || exit 0; dpkg-query -W -f '${Package} ${Status}\\n' %s 2>&1; ls /etc/apt/sources.list.d; ls ~/.local/share/fonts/JetBrainsMonoNerd 2>&1; command -v herdr lazydocker yazi fd bat; systemctl is-enabled %s; cat /etc/ufw/user.rules ~/.local/state/dotfiles/ufw-rules-added 2>/dev/null; true" (join " " $apt) (join " " .ubuntu.services) }}
+{{- $check := printf ". /etc/os-release; [ \"$ID\" = ubuntu ] || exit 0; dpkg-query -W -f '${Package} ${Status}\\n' %s 2>&1; ls /etc/apt/sources.list.d; ls ~/.local/share/fonts/JetBrainsMonoNerd 2>&1; command -v herdr lazydocker yazi fd bat ast-grep; systemctl is-enabled %s; cat /etc/ufw/user.rules ~/.local/state/dotfiles/ufw-rules-added 2>/dev/null; true" (join " " $apt) (join " " .ubuntu.services) }}
 # {{ list $apt .ubuntu.downloads .ubuntu.services .packages.firewall (output "sh" "-c" $check) | toJson | sha256sum }}
 set -euo pipefail
 
@@ -17,6 +17,7 @@ set -euo pipefail
 
 apt_pkgs=({{ range $apt }}{{ . | quote }} {{ end }})
 services=({{ range .ubuntu.services }}{{ . | quote }} {{ end }})
+mise_tools=({{ range .ubuntu.mise }}{{ . | quote }} {{ end }})
 firewall_rules=({{ range .packages.firewall.allow }}{{ . | quote }} {{ end }})
 read -r font_url font_sha <<<{{ .ubuntu.downloads.nerd_font | quote }}
 read -r lazydocker_url lazydocker_sha <<<{{ .ubuntu.downloads.lazydocker | quote }}
@@ -51,6 +52,12 @@ dpkg-query -W -f '${Status}' localsend 2>/dev/null | grep -q "install ok install
 command -v herdr >/dev/null || [ -x "$HOME/.local/bin/herdr" ] || missing_extra+=(herdr)
 [ -x "$HOME/.local/bin/yazi" ] || command -v yazi >/dev/null || missing_extra+=(yazi)
 
+# mise tools count as present when the command exists (mise shims or other)
+missing_mise=()
+for t in "${mise_tools[@]}"; do
+    command -v "$t" >/dev/null || [ -x "$HOME/.local/share/mise/shims/$t" ] || missing_mise+=("$t")
+done
+
 disabled_services=()
 for s in "${services[@]}"; do
     systemctl is-enabled -q "$s" 2>/dev/null || disabled_services+=("$s")
@@ -72,7 +79,7 @@ if systemctl is-enabled -q ufw 2>/dev/null; then
     fi
 fi
 
-all=("${missing_repos[@]/#/repo:}" "${missing_apt[@]}" "${missing_extra[@]}" "${disabled_services[@]}" "${missing_rules[@]/#/ufw:}")
+all=("${missing_repos[@]/#/repo:}" "${missing_apt[@]}" "${missing_mise[@]/#/mise:}" "${missing_extra[@]}" "${disabled_services[@]}" "${missing_rules[@]/#/ufw:}")
 [ ${#all[@]} -gt 0 ] || exit 0
 
 if [ ! -t 0 ] || [ ! -t 1 ]; then
@@ -128,6 +135,11 @@ if [ ${#missing_apt[@]} -gt 0 ]; then
     [ -x /usr/bin/fdfind ] && ln -sf /usr/bin/fdfind "$HOME/.local/bin/fd"
     [ -x /usr/bin/batcat ] && ln -sf /usr/bin/batcat "$HOME/.local/bin/bat"
 fi
+
+# --- tools Ubuntu doesn't package, via mise ------------------------------------
+for t in "${missing_mise[@]}"; do
+    mise use --global --yes "$t@latest"
+done
 
 # --- downloads (pinned, SHA-256 checked) ---------------------------------------
 fetch() { # fetch <url> <sha256> <out>
