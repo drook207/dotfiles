@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Install the packages listed in .chezmoidata/packages.toml that are missing and
 # enable the listed system services.
+# Installs with -Syu so a stale package database can't cause 404s from the
+# mirrors (and Arch doesn't support partial upgrades).
 # Installing needs sudo (and paru asks to review AUR build scripts), so outside
 # an interactive terminal it fails with a hint instead.
 #
@@ -64,13 +66,13 @@ if [ ! -t 0 ] || [ ! -t 1 ]; then
 fi
 
 if [ ${#missing_repo[@]} -gt 0 ]; then
-    sudo pacman -S --needed "${missing_repo[@]}"
+    sudo pacman -Syu --needed "${missing_repo[@]}"
 fi
 
 if [ ${#missing_helper[@]} -gt 0 ]; then
     # CachyOS ships paru; on plain Arch build paru-bin from the AUR
-    if ! sudo pacman -S --needed paru; then
-        sudo pacman -S --needed base-devel git
+    if ! sudo pacman -Syu --needed paru; then
+        sudo pacman -Syu --needed base-devel git
         tmp=$(mktemp -d)
         trap 'rm -rf "$tmp"' EXIT
         git clone https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
@@ -79,7 +81,7 @@ if [ ${#missing_helper[@]} -gt 0 ]; then
 fi
 
 if [ ${#missing_aur[@]} -gt 0 ]; then
-    paru -S --needed "${missing_aur[@]}"
+    paru -Syu --needed "${missing_aur[@]}"
 fi
 
 if [ ${#disabled_services[@]} -gt 0 ]; then
