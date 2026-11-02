@@ -21,3 +21,6 @@ zoxide init --cmd cd fish | source
 
 # User-installed tools (pipx, herdr, ...); no-op if already on the PATH
 fish_add_path -g ~/.local/bin
+
+# opencode
+fish_add_path /home/drook207/.opencode/bin
